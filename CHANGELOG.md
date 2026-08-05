@@ -1,8 +1,9 @@
-# PetLingo v6.0.0
+# PetLingo v6.0.1 Compile Fix
 
-- 建立乾淨的 v6.0 穩定基礎專案。
-- 保留現有學習功能與 UI。
-- 移除舊版會員系統與多餘修復腳本。
-- 重建根目錄、app 模組與 GitHub Actions。
-- 固定 JDK 17、Gradle 8.11.1、AGP 8.7.3、Kotlin 2.0.21。
-- GitHub Actions 直接執行 `:app:assembleDebug`。
+- 刪除未使用且資料模型不相容的 `PetData.kt`。
+- 修正 `Word` 與 `QuizQuestion` unresolved reference 編譯錯誤。
+- 保留正式使用中的 `model/Models.kt`。
+- GitHub Actions 建置前會移除舊 `PetData.kt`。
+- 新增資料模型一致性檢查。
+- versionCode 更新為 21。
+- versionName 更新為 6.0.1-compile-fix。

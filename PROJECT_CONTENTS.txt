@@ -1,5 +1,6 @@
 .github/workflows/android.yml
 CHANGELOG.md
+PROJECT_CONTENTS.txt
 README.md
 app/build.gradle.kts
 app/proguard-rules.pro
@@ -8,7 +9,6 @@ app/src/main/assets/toeic_words.tsv
 app/src/main/java/com/petlingo/app/MainActivity.kt
 app/src/main/java/com/petlingo/app/PetLingoViewModel.kt
 app/src/main/java/com/petlingo/app/data/FavoriteStore.kt
-app/src/main/java/com/petlingo/app/data/PetData.kt
 app/src/main/java/com/petlingo/app/data/PhraseRepository.kt
 app/src/main/java/com/petlingo/app/data/QuizRepository.kt
 app/src/main/java/com/petlingo/app/data/ReadingRepository.kt
@@ -69,4 +69,5 @@ gradle/wrapper/gradle-wrapper.properties
 gradlew
 gradlew.bat
 scripts/check_duplicate_models.sh
+scripts/check_source_consistency.sh
 settings.gradle.kts
