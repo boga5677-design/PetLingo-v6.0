@@ -16,6 +16,7 @@ app/src/main/java/com/petlingo/app/data/PhraseRepository.kt
 app/src/main/java/com/petlingo/app/data/QuizRepository.kt
 app/src/main/java/com/petlingo/app/data/ReadingRepository.kt
 app/src/main/java/com/petlingo/app/data/ReadingStore.kt
+app/src/main/java/com/petlingo/app/data/SettingsStore.kt
 app/src/main/java/com/petlingo/app/data/SpeakingStore.kt
 app/src/main/java/com/petlingo/app/data/StudyStore.kt
 app/src/main/java/com/petlingo/app/data/WordRepository.kt

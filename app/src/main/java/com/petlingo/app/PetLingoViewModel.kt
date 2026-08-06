@@ -9,6 +9,7 @@ import com.petlingo.app.data.ReadingRepository
 import com.petlingo.app.data.ReadingStore
 import com.petlingo.app.data.StudyStore
 import com.petlingo.app.data.SpeakingStore
+import com.petlingo.app.data.SettingsStore
 import com.petlingo.app.data.WordRepository
 import com.petlingo.app.data.WrongAnswerStore
 import com.petlingo.app.model.AnswerRecord
@@ -31,6 +32,7 @@ class PetLingoViewModel(app: Application) : AndroidViewModel(app) {
     private val allWords = WordRepository(app).loadWords()
     private val wrongStore = WrongAnswerStore(app)
     private val speakingStore = SpeakingStore(app)
+    private val settingsStore = SettingsStore(app)
     val phrases = PhraseRepository().phrases()
     val readingPassages: List<ReadingPassage> = ReadingRepository().passages()
 
@@ -117,7 +119,7 @@ class PetLingoViewModel(app: Application) : AndroidViewModel(app) {
         )
         currentQuestionSubmitted = true
         _answers.value = _answers.value + record
-        if (!record.isCorrect) {
+        if (!record.isCorrect && settingsStore.settings.value.addWrongAnswerAutomatically) {
             addWrongAnswer(
                 record.prompt,
                 record.selectedAnswer,

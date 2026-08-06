@@ -17,10 +17,11 @@ import androidx.navigation.compose.*
 import androidx.navigation.NavDestination.Companion.hierarchy
 import com.petlingo.app.PetLingoViewModel
 import com.petlingo.app.model.QuizMode
+import com.petlingo.app.data.SettingsStore
 import com.petlingo.app.ui.screens.*
 
 @Composable
-fun PetLingoApp(vm: PetLingoViewModel = viewModel()) {
+fun PetLingoApp(settingsStore: SettingsStore, vm: PetLingoViewModel = viewModel()) {
     val nav = rememberNavController()
     val sessions by vm.sessions.collectAsState()
     val readingSessions by vm.readingSessions.collectAsState()
@@ -32,6 +33,7 @@ fun PetLingoApp(vm: PetLingoViewModel = viewModel()) {
     val query by vm.query.collectAsState()
     val wrongAnswers by vm.wrongAnswers.collectAsState()
     val speakingRecords by vm.speakingRecords.collectAsState()
+    val appSettings by settingsStore.settings.collectAsState()
 
     val startOfToday = remember {
         Calendar.getInstance().apply {
@@ -106,7 +108,20 @@ fun PetLingoApp(vm: PetLingoViewModel = viewModel()) {
                 if (vm.newQuiz(20, QuizMode.ENGLISH_TO_CHINESE)) nav.navigate("quiz")
             } }
             composable("achievements") { AchievementsScreen(sessions.size, todayAnswered) }
-            composable("settings") { SettingsScreen() }
+            composable("settings") {
+                SettingsScreen(
+                    settings = appSettings,
+                    onUpdate = settingsStore::update,
+                    sessionCount = sessions.size + readingSessions.size,
+                    favoriteCount = favorites.size,
+                    wrongAnswerCount = wrongAnswers.size,
+                    speakingCount = speakingRecords.size,
+                    onClearHistory = vm::clearHistory,
+                    onClearWrongAnswers = vm::clearWrongAnswers,
+                    onClearSpeaking = vm::clearSpeakingHistory,
+                    onResetSettings = settingsStore::reset
+                )
+            }
         }
     }
 }
