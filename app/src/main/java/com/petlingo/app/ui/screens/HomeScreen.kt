@@ -11,6 +11,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
@@ -21,6 +22,13 @@ import androidx.compose.ui.unit.dp
 import com.petlingo.app.R
 import com.petlingo.app.model.QuizSession
 import com.petlingo.app.util.AnalyticsCalculator
+
+private val HomeTitleColor = Color(0xFF2B2B2B)
+private val HomeSubtitleColor = Color(0xFF555555)
+private val HomeSecondaryColor = Color(0xFF666666)
+private val HomeIconColor = Color(0xFF7C4DFF)
+private val HomeGreenColor = Color(0xFF3B8B56)
+private val HomeRewardColor = Color(0xFFD89224)
 
 @Composable
 fun HomeScreen(
@@ -45,30 +53,77 @@ fun HomeScreen(
     val progress = todayAnswered.coerceIn(0, 20)
 
     LazyColumn(
-        Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
-        contentPadding = PaddingValues(horizontal = 14.dp, vertical = 10.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background),
+        contentPadding = PaddingValues(
+            horizontal = 14.dp,
+            vertical = 10.dp
+        ),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         item {
-            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                IconButton(onClick = onSettings) { Icon(Icons.Default.Menu, "選單") }
-                Text("PetLingo", style = MaterialTheme.typography.headlineLarge,
-                    fontWeight = FontWeight.Black, color = Color(0xFF3B2518))
-                Spacer(Modifier.weight(1f))
-                Column(horizontalAlignment = Alignment.End) {
-                    Text("Hi, 學習者 👋", fontWeight = FontWeight.Bold)
-                    Text("持續學習的每一天都很棒！", style = MaterialTheme.typography.bodySmall)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = onSettings) {
+                    Icon(
+                        imageVector = Icons.Default.Menu,
+                        contentDescription = "選單"
+                    )
                 }
-                IconButton(onClick = onSettings) { Icon(Icons.Default.Notifications, "通知") }
+
+                Text(
+                    text = "PetLingo",
+                    style = MaterialTheme.typography.headlineLarge,
+                    fontWeight = FontWeight.Black,
+                    color = Color(0xFF3B2518)
+                )
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                Column(
+                    horizontalAlignment = Alignment.End
+                ) {
+                    Text(
+                        text = "Hi, 學習者 👋",
+                        color = HomeTitleColor,
+                        fontWeight = FontWeight.Bold
+                    )
+
+                    Text(
+                        text = "持續學習的每一天都很棒！",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = HomeSubtitleColor
+                    )
+                }
+
+                IconButton(onClick = onSettings) {
+                    Icon(
+                        imageVector = Icons.Default.Notifications,
+                        contentDescription = "通知"
+                    )
+                }
             }
         }
 
         item {
-            Card(shape = RoundedCornerShape(24.dp), modifier = Modifier.fillMaxWidth()) {
+            Card(
+                shape = RoundedCornerShape(24.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .shadow(
+                        elevation = 6.dp,
+                        shape = RoundedCornerShape(24.dp)
+                    )
+            ) {
                 Image(
                     painter = painterResource(R.drawable.petlingo_home_banner),
                     contentDescription = "黑糖、偶貴與熊熊一起學英文",
-                    modifier = Modifier.fillMaxWidth().aspectRatio(1.78f),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(1.78f),
                     contentScale = ContentScale.Crop
                 )
             }
@@ -77,140 +132,502 @@ fun HomeScreen(
         item {
             Card(
                 onClick = onDailyMission,
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF0D5)),
-                shape = RoundedCornerShape(22.dp)
+                colors = CardDefaults.cardColors(
+                    containerColor = Color(0xFFFFF0D5)
+                ),
+                shape = RoundedCornerShape(22.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .shadow(
+                        elevation = 5.dp,
+                        shape = RoundedCornerShape(22.dp)
+                    )
             ) {
-                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.MilitaryTech, null, tint = Color(0xFFD89224), modifier = Modifier.size(42.dp))
-                        Spacer(Modifier.width(10.dp))
-                        Column(Modifier.weight(1f)) {
-                            Text("今日任務（成人版）", fontWeight = FontWeight.Bold)
-                            Text("完成 20 題可獲得獎勵！", style = MaterialTheme.typography.bodySmall)
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.MilitaryTech,
+                            contentDescription = null,
+                            tint = HomeRewardColor,
+                            modifier = Modifier.size(42.dp)
+                        )
+
+                        Spacer(modifier = Modifier.width(10.dp))
+
+                        Column(
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text(
+                                text = "今日任務（成人版）",
+                                color = HomeTitleColor,
+                                fontWeight = FontWeight.Black
+                            )
+
+                            Text(
+                                text = "完成 20 題可獲得獎勵！",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = HomeSubtitleColor
+                            )
                         }
-                        Text("$progress / 20", style = MaterialTheme.typography.headlineSmall,
-                            fontWeight = FontWeight.Black, color = MaterialTheme.colorScheme.primary)
+
+                        Text(
+                            text = "$progress / 20",
+                            style = MaterialTheme.typography.headlineSmall,
+                            fontWeight = FontWeight.Black,
+                            color = HomeIconColor
+                        )
                     }
-                    LinearProgressIndicator(progress = { progress / 20f }, modifier = Modifier.fillMaxWidth())
+
+                    LinearProgressIndicator(
+                        progress = { progress / 20f },
+                        modifier = Modifier.fillMaxWidth(),
+                        color = HomeIconColor,
+                        trackColor = Color(0xFFE5D7FF)
+                    )
                 }
             }
         }
 
         item {
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
                 FeatureRow(
-                    HomeFeature("GEPT 單字學習", "初級・中級・中高級", Icons.Default.MenuBook, Color(0xFFE8F2D9), onVocabulary),
-                    HomeFeature("片語學習", "常用片語與例句", Icons.Default.Chat, Color(0xFFFFE5E0), onPhrase)
+                    a = HomeFeature(
+                        title = "GEPT 單字學習",
+                        subtitle = "初級・中級・中高級",
+                        icon = Icons.Default.MenuBook,
+                        color = Color(0xFFE8F2D9),
+                        action = onVocabulary
+                    ),
+                    b = HomeFeature(
+                        title = "片語學習",
+                        subtitle = "常用片語與例句",
+                        icon = Icons.Default.Chat,
+                        color = Color(0xFFFFE5E0),
+                        action = onPhrase
+                    )
                 )
+
                 FeatureRow(
-                    HomeFeature("閱讀測驗", "多種文章・即時解析", Icons.Default.AutoStories, Color(0xFFFFF0D5), onReading),
-                    HomeFeature("多益模擬題", "20／50／100 題", Icons.Default.Assignment, Color(0xFFEDE5FA), onMock)
+                    a = HomeFeature(
+                        title = "閱讀測驗",
+                        subtitle = "多種文章・即時解析",
+                        icon = Icons.Default.AutoStories,
+                        color = Color(0xFFFFF0D5),
+                        action = onReading
+                    ),
+                    b = HomeFeature(
+                        title = "多益模擬題",
+                        subtitle = "20／50／100 題",
+                        icon = Icons.Default.Assignment,
+                        color = Color(0xFFEDE5FA),
+                        action = onMock
+                    )
                 )
+
                 FeatureRow(
-                    HomeFeature("聽力測驗", "播放英文・選出中文", Icons.Default.Headphones, Color(0xFFE1EDFA), onListening),
-                    HomeFeature("口說練習", "隨機抽題・單字片語表", Icons.Default.Mic, Color(0xFFEDE5FA), onSpeaking)
+                    a = HomeFeature(
+                        title = "聽力測驗",
+                        subtitle = "播放英文・選出中文",
+                        icon = Icons.Default.Headphones,
+                        color = Color(0xFFE1EDFA),
+                        action = onListening
+                    ),
+                    b = HomeFeature(
+                        title = "口說練習",
+                        subtitle = "隨機抽題・單字片語表",
+                        icon = Icons.Default.Mic,
+                        color = Color(0xFFEDE5FA),
+                        action = onSpeaking
+                    )
                 )
+
                 FeatureRow(
-                    HomeFeature("學習分析", "答題時間・弱點分析", Icons.Default.Analytics, Color(0xFFDDF3EE), onAnalytics),
-                    HomeFeature("錯題本", "錯題複習・加強記憶", Icons.Default.EditNote, Color(0xFFFFE4DE), onWrongAnswers)
+                    a = HomeFeature(
+                        title = "學習分析",
+                        subtitle = "答題時間・弱點分析",
+                        icon = Icons.Default.Analytics,
+                        color = Color(0xFFDDF3EE),
+                        action = onAnalytics
+                    ),
+                    b = HomeFeature(
+                        title = "錯題本",
+                        subtitle = "錯題複習・加強記憶",
+                        icon = Icons.Default.EditNote,
+                        color = Color(0xFFFFE4DE),
+                        action = onWrongAnswers
+                    )
                 )
+
                 FeatureRow(
-                    HomeFeature("成就與獎勵", "累積徽章・兌換獎勵", Icons.Default.EmojiEvents, Color(0xFFFFF0C8), onAchievements),
-                    HomeFeature("測驗設定", "10／20／40 題", Icons.Default.Quiz, Color(0xFFE8F2D9), onQuiz)
+                    a = HomeFeature(
+                        title = "成就與獎勵",
+                        subtitle = "累積徽章・兌換獎勵",
+                        icon = Icons.Default.EmojiEvents,
+                        color = Color(0xFFFFF0C8),
+                        action = onAchievements
+                    ),
+                    b = HomeFeature(
+                        title = "測驗設定",
+                        subtitle = "10／20／40 題",
+                        icon = Icons.Default.Quiz,
+                        color = Color(0xFFE8F2D9),
+                        action = onQuiz
+                    )
                 )
             }
         }
 
         item {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                ToolCard("我的收藏", "$favoriteCount 個", Icons.Default.Favorite, onFavorites, Modifier.weight(1f))
-                ToolCard("每日任務", "挑戰 20 題", Icons.Default.Today, onDailyMission, Modifier.weight(1f))
-                ToolCard("學習紀錄", "查看歷次紀錄", Icons.Default.History, onHistory, Modifier.weight(1f))
-                ToolCard("設定", "音效・顯示", Icons.Default.Settings, onSettings, Modifier.weight(1f))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                ToolCard(
+                    title = "我的收藏",
+                    subtitle = "$favoriteCount 個",
+                    icon = Icons.Default.Favorite,
+                    action = onFavorites,
+                    modifier = Modifier.weight(1f)
+                )
+
+                ToolCard(
+                    title = "每日任務",
+                    subtitle = "挑戰 20 題",
+                    icon = Icons.Default.Today,
+                    action = onDailyMission,
+                    modifier = Modifier.weight(1f)
+                )
+
+                ToolCard(
+                    title = "學習紀錄",
+                    subtitle = "查看歷次紀錄",
+                    icon = Icons.Default.History,
+                    action = onHistory,
+                    modifier = Modifier.weight(1f)
+                )
+
+                ToolCard(
+                    title = "設定",
+                    subtitle = "音效・顯示",
+                    icon = Icons.Default.Settings,
+                    action = onSettings,
+                    modifier = Modifier.weight(1f)
+                )
             }
         }
 
         item {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                Card(Modifier.weight(1f), shape = RoundedCornerShape(20.dp)) {
-                    Column(Modifier.padding(14.dp)) {
-                        Text("最近學習", fontWeight = FontWeight.Bold)
-                        if (last == null) Text("尚未完成測驗")
-                        else {
-                            Text(last.modeLabel, style = MaterialTheme.typography.bodySmall)
-                            Text("${last.score} 分・正確 ${last.correctCount} 題", fontWeight = FontWeight.Bold,
-                                color = Color(0xFF3B8B56))
-                            Text(AnalyticsCalculator.totalTime(last.totalMillis), style = MaterialTheme.typography.labelSmall)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Card(
+                    modifier = Modifier
+                        .weight(1f)
+                        .shadow(
+                            elevation = 4.dp,
+                            shape = RoundedCornerShape(20.dp)
+                        ),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color(0xFFF8F8F8)
+                    ),
+                    shape = RoundedCornerShape(20.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(14.dp)
+                    ) {
+                        Text(
+                            text = "最近學習",
+                            color = HomeTitleColor,
+                            fontWeight = FontWeight.Bold
+                        )
+
+                        if (last == null) {
+                            Text(
+                                text = "尚未完成測驗",
+                                color = HomeSubtitleColor
+                            )
+                        } else {
+                            Text(
+                                text = last.modeLabel,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = HomeSubtitleColor
+                            )
+
+                            Text(
+                                text = "${last.score} 分・正確 ${last.correctCount} 題",
+                                color = HomeGreenColor,
+                                fontWeight = FontWeight.Bold
+                            )
+
+                            Text(
+                                text = AnalyticsCalculator.totalTime(
+                                    last.totalMillis
+                                ),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = HomeSecondaryColor
+                            )
                         }
                     }
                 }
-                Card(Modifier.weight(1f), colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF7E8)),
-                    shape = RoundedCornerShape(20.dp)) {
-                    Column(Modifier.padding(14.dp)) {
-                        Text("今日建議", fontWeight = FontWeight.Bold)
-                        Text("建議複習", style = MaterialTheme.typography.bodySmall)
-                        Text("cooperation", fontWeight = FontWeight.Black)
-                        Button(onClick = onPhrase, modifier = Modifier.fillMaxWidth()) { Text("立即複習") }
+
+                Card(
+                    modifier = Modifier
+                        .weight(1f)
+                        .shadow(
+                            elevation = 4.dp,
+                            shape = RoundedCornerShape(20.dp)
+                        ),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color(0xFFFFF7E8)
+                    ),
+                    shape = RoundedCornerShape(20.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(14.dp)
+                    ) {
+                        Text(
+                            text = "今日建議",
+                            color = HomeTitleColor,
+                            fontWeight = FontWeight.Bold
+                        )
+
+                        Text(
+                            text = "建議複習",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = HomeSubtitleColor
+                        )
+
+                        Text(
+                            text = "cooperation",
+                            color = HomeTitleColor,
+                            fontWeight = FontWeight.Black
+                        )
+
+                        Button(
+                            onClick = onPhrase,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("立即複習")
+                        }
                     }
                 }
             }
         }
 
         item {
-            Card(Modifier.fillMaxWidth(), shape = RoundedCornerShape(20.dp)) {
-                Row(Modifier.padding(16.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                    Column(Modifier.weight(1f)) {
-                        Text("連續學習天數", fontWeight = FontWeight.Bold)
-                        Text("7 天", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Black)
-                        Text("太棒了！繼續加油！", style = MaterialTheme.typography.bodySmall)
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .shadow(
+                        elevation = 4.dp,
+                        shape = RoundedCornerShape(20.dp)
+                    ),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color(0xFFF8F8F8)
+                ),
+                shape = RoundedCornerShape(20.dp)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(
+                            text = "連續學習天數",
+                            color = HomeTitleColor,
+                            fontWeight = FontWeight.Bold
+                        )
+
+                        Text(
+                            text = "7 天",
+                            style = MaterialTheme.typography.headlineMedium,
+                            color = HomeTitleColor,
+                            fontWeight = FontWeight.Black
+                        )
+
+                        Text(
+                            text = "太棒了！繼續加油！",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = HomeSubtitleColor
+                        )
                     }
-                    Text("🔥", style = MaterialTheme.typography.displaySmall)
+
+                    Text(
+                        text = "🔥",
+                        style = MaterialTheme.typography.displaySmall
+                    )
                 }
             }
         }
 
         item {
-            TextButton(onClick = onHistory, modifier = Modifier.fillMaxWidth()) { Text("查看完整學習紀錄") }
+            TextButton(
+                onClick = onHistory,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = "查看完整學習紀錄",
+                    color = HomeIconColor,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
-        item { Spacer(Modifier.height(10.dp)) }
+
+        item {
+            Spacer(modifier = Modifier.height(10.dp))
+        }
     }
 }
 
 private data class HomeFeature(
-    val title: String, val subtitle: String, val icon: ImageVector,
-    val color: Color, val action: () -> Unit
+    val title: String,
+    val subtitle: String,
+    val icon: ImageVector,
+    val color: Color,
+    val action: () -> Unit
 )
 
 @Composable
-private fun FeatureRow(a: HomeFeature, b: HomeFeature) {
-    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-        FeatureTile(a, Modifier.weight(1f))
-        FeatureTile(b, Modifier.weight(1f))
+private fun FeatureRow(
+    a: HomeFeature,
+    b: HomeFeature
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        FeatureTile(
+            feature = a,
+            modifier = Modifier.weight(1f)
+        )
+
+        FeatureTile(
+            feature = b,
+            modifier = Modifier.weight(1f)
+        )
     }
 }
 
 @Composable
-private fun FeatureTile(feature: HomeFeature, modifier: Modifier) {
-    Card(onClick = feature.action, modifier = modifier.heightIn(min = 132.dp),
-        colors = CardDefaults.cardColors(containerColor = feature.color), shape = RoundedCornerShape(22.dp)) {
-        Column(Modifier.fillMaxSize().padding(14.dp), horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center) {
-            Icon(feature.icon, null, modifier = Modifier.size(42.dp), tint = MaterialTheme.colorScheme.primary)
-            Spacer(Modifier.height(8.dp))
-            Text(feature.title, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
-            Text(feature.subtitle, style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.Center)
+private fun FeatureTile(
+    feature: HomeFeature,
+    modifier: Modifier
+) {
+    Card(
+        onClick = feature.action,
+        modifier = modifier
+            .heightIn(min = 132.dp)
+            .shadow(
+                elevation = 6.dp,
+                shape = RoundedCornerShape(22.dp)
+            ),
+        colors = CardDefaults.cardColors(
+            containerColor = feature.color
+        ),
+        shape = RoundedCornerShape(22.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(14.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                imageVector = feature.icon,
+                contentDescription = null,
+                modifier = Modifier.size(42.dp),
+                tint = HomeIconColor
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = feature.title,
+                style = MaterialTheme.typography.titleSmall,
+                color = HomeTitleColor,
+                fontWeight = FontWeight.Black,
+                textAlign = TextAlign.Center
+            )
+
+            Spacer(modifier = Modifier.height(2.dp))
+
+            Text(
+                text = feature.subtitle,
+                style = MaterialTheme.typography.bodySmall,
+                color = HomeSubtitleColor,
+                fontWeight = FontWeight.Medium,
+                textAlign = TextAlign.Center
+            )
         }
     }
 }
 
 @Composable
-private fun ToolCard(title: String, subtitle: String, icon: ImageVector, action: () -> Unit, modifier: Modifier) {
-    Card(onClick = action, modifier = modifier.heightIn(min = 92.dp), shape = RoundedCornerShape(16.dp)) {
-        Column(Modifier.padding(8.dp).fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center) {
-            Icon(icon, null, tint = MaterialTheme.colorScheme.primary)
-            Text(title, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
-            Text(subtitle, style = MaterialTheme.typography.labelSmall, textAlign = TextAlign.Center, maxLines = 1)
+private fun ToolCard(
+    title: String,
+    subtitle: String,
+    icon: ImageVector,
+    action: () -> Unit,
+    modifier: Modifier
+) {
+    Card(
+        onClick = action,
+        modifier = modifier
+            .heightIn(min = 92.dp)
+            .shadow(
+                elevation = 3.dp,
+                shape = RoundedCornerShape(16.dp)
+            ),
+        colors = CardDefaults.cardColors(
+            containerColor = Color(0xFFF7F4FA)
+        ),
+        shape = RoundedCornerShape(16.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(8.dp)
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = HomeIconColor
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = title,
+                style = MaterialTheme.typography.labelMedium,
+                color = HomeTitleColor,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center
+            )
+
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.labelSmall,
+                color = HomeSecondaryColor,
+                fontWeight = FontWeight.Medium,
+                textAlign = TextAlign.Center,
+                maxLines = 1
+            )
         }
     }
 }
