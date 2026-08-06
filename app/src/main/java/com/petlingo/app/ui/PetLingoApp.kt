@@ -97,7 +97,7 @@ fun PetLingoApp(vm: PetLingoViewModel = viewModel()) {
                 val id = entry.arguments?.getString("id")?.toIntOrNull() ?: -1
                 ReadingDetailScreen(vm.readingPassage(id), vm::addReadingWrong, vm::saveReadingSession)
             }
-            composable("speaking") { SpeakingScreen(vm.words, speakingRecords, vm::saveSpeakingRecord, vm::clearSpeakingHistory) }
+            composable("speaking") { SpeakingScreen(vm.words, vm.phrases, speakingRecords, vm::saveSpeakingRecord, vm::clearSpeakingHistory) }
             composable("wrongAnswers") { WrongAnswersScreen(wrongAnswers, vm::removeWrongAnswer, vm::clearWrongAnswers) }
             composable("analytics") { AnalyticsScreen(analysisSession) }
             composable("history") { HistoryScreen(sessions, readingSessions, { vm.openAnalysis(it); nav.navigate("analytics") }, vm::clearHistory) }

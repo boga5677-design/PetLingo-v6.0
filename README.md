@@ -1,25 +1,17 @@
-# PetLingo v6.0.1 Compile Fix
+# PetLingo v6.2 GEPT Complete
 
-這一版修正 GitHub Actions 的 Kotlin 編譯錯誤：
+This Android project contains 8,382 unique vocabulary/sense records converted from the supplied GEPT elementary, intermediate and high-intermediate vocabulary lists.
 
-```text
-PetData.kt: Unresolved reference 'Word'
-PetData.kt: Unresolved reference 'QuizQuestion'
-```
+Core features:
+- GEPT level filtering and search
+- English-to-Chinese and Chinese-to-English quizzes
+- 10／20／40 question modes
+- Listening quiz with TTS
+- Random word/phrase speaking prompts
+- US/UK pronunciation
+- Wrong-answer notebook and response-time analysis
+- Persistent return-to-main-menu button after quizzes
+- GitHub Actions APK build
 
-原因是 `PetData.kt` 屬於舊版範例資料，使用三參數 `Word(...)` 與舊格式 `QuizQuestion(...)`，
-但目前正式資料模型已改為 `model/Models.kt` 內的新版結構，而且專案中沒有任何功能使用 `PetData`。
-
-因此本版直接移除該檔案，而不是建立第二套重複 Model。
-
-GitHub Actions 會執行：
-
-```bash
-./gradlew --no-daemon :app:assembleDebug --stacktrace
-```
-
-APK 成功後位於：
-
-```text
-app/build/outputs/apk/debug/app-debug.apk
-```
+Build command:
+`./gradlew --no-daemon :app:assembleDebug --stacktrace`

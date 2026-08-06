@@ -1,9 +1,11 @@
-# PetLingo v6.0.1 Compile Fix
+# PetLingo v6.2.0
 
-- 刪除未使用且資料模型不相容的 `PetData.kt`。
-- 修正 `Word` 與 `QuizQuestion` unresolved reference 編譯錯誤。
-- 保留正式使用中的 `model/Models.kt`。
-- GitHub Actions 建置前會移除舊 `PetData.kt`。
-- 新增資料模型一致性檢查。
-- versionCode 更新為 21。
-- versionName 更新為 6.0.1-compile-fix。
+- Integrated 8,382 deduplicated vocabulary/sense records from the supplied GEPT lists.
+- Added 初級／中級／中高級 filters.
+- Displays part of speech, notes and academic-word metadata.
+- Expanded quiz, listening and speaking pools to the complete word bank.
+- Speaking practice now randomly draws a word or phrase.
+- Added a persistent 返回主選單 button after each quiz.
+- Retained 10／20／40 question modes, wrong-answer records and response-time analysis.
+- versionCode = 22
+- versionName = 6.2.0-gept-wordbank

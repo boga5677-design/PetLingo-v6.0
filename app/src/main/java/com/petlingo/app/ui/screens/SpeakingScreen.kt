@@ -8,39 +8,23 @@ import android.speech.RecognizerIntent
 import android.speech.tts.TextToSpeech
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material.icons.filled.VolumeUp
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import com.petlingo.app.model.Phrase
 import com.petlingo.app.model.SpeakingRecord
 import com.petlingo.app.model.Word
 import com.petlingo.app.util.SpeakingScorer
@@ -51,35 +35,63 @@ import java.util.Locale
 @Composable
 fun SpeakingScreen(
     words: List<Word>,
+    phrases: List<Phrase>,
     records: List<SpeakingRecord>,
     onSave: (SpeakingRecord) -> Unit,
     onClear: () -> Unit
 ) {
     val context = LocalContext.current
-    var target by remember { mutableStateOf(words.firstOrNull()?.english.orEmpty()) }
+    var mode by remember { mutableStateOf("混合") }
+    var target by remember(words, phrases) {
+        mutableStateOf(words.randomOrNull()?.english ?: phrases.randomOrNull()?.english.orEmpty())
+    }
     var recognized by remember { mutableStateOf("") }
     var accent by remember { mutableStateOf("美式") }
     var score by remember { mutableIntStateOf(-1) }
-    var status by remember { mutableStateOf("先播放示範，再按麥克風跟讀。") }
+    var status by remember { mutableStateOf("題目會從單字表或片語題庫隨機抽出。") }
     var ttsReady by remember { mutableStateOf(false) }
     val tts = remember { TextToSpeech(context) { ttsReady = it == TextToSpeech.SUCCESS } }
+
+    fun drawPrompt(): String = when (mode) {
+        "單字" -> words.randomOrNull()?.english
+        "片語" -> phrases.randomOrNull()?.english
+        else -> listOfNotNull(words.randomOrNull()?.english, phrases.randomOrNull()?.english).randomOrNull()
+    }.orEmpty()
+
+    fun nextPrompt() {
+        val old = target
+        var next = drawPrompt()
+        repeat(8) {
+            if (next.isNotBlank() && next != old) return@repeat
+            next = drawPrompt()
+        }
+        target = next
+        recognized = ""
+        score = -1
+        status = "新題目已抽出，先聽示範再跟讀。"
+    }
 
     DisposableEffect(Unit) { onDispose { tts.stop(); tts.shutdown() } }
     LaunchedEffect(accent, ttsReady) {
         if (ttsReady) tts.language = if (accent == "英式") Locale.UK else Locale.US
     }
+    LaunchedEffect(mode) { nextPrompt() }
 
     fun saveResult(text: String) {
         recognized = text
         score = SpeakingScorer.score(target, text)
         status = SpeakingScorer.feedback(target, text, score)
-        onSave(SpeakingRecord(targetText = target.trim(), recognizedText = text, score = score, accent = accent))
+        onSave(SpeakingRecord(targetText = target, recognizedText = text, score = score, accent = accent))
     }
 
-    val speechLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+    val speechLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
-            val text = result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.firstOrNull().orEmpty()
-            saveResult(text)
+            saveResult(
+                result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
+                    ?.firstOrNull().orEmpty()
+            )
         } else status = "未取得語音辨識結果，可再試一次。"
     }
 
@@ -94,84 +106,95 @@ fun SpeakingScreen(
             .onFailure { status = "裝置目前沒有可用的語音辨識服務。" }
     }
 
-    val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
         if (granted) startRecognition() else status = "需要麥克風權限才能進行口說辨識。"
     }
 
     LazyColumn(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
+        Modifier.fillMaxSize().padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         item {
-            Text("口說練習", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
-            Text("使用系統語音辨識比較朗讀文字；分數代表文字辨識相似度，不是音素級專業發音評測。")
+            Text("隨機口說練習", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+            Text("從 ${words.size} 筆單字與 ${phrases.size} 組片語中抽題。")
+        }
+        item {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                listOf("混合", "單字", "片語").forEach { item ->
+                    FilterChip(selected = mode == item, onClick = { mode = item }, label = { Text(item) })
+                }
+            }
         }
         item {
             Card(Modifier.fillMaxWidth()) {
-                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    OutlinedTextField(
-                        value = target,
-                        onValueChange = { target = it; score = -1; recognized = "" },
-                        label = { Text("練習單字或句子") },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = false
-                    )
+                Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                    Text(target.ifBlank { "題庫載入中" }, Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center, style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Black)
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         FilterChip(selected = accent == "美式", onClick = { accent = "美式" }, label = { Text("美式") })
                         FilterChip(selected = accent == "英式", onClick = { accent = "英式" }, label = { Text("英式") })
                     }
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Button(
                             onClick = {
                                 if (target.isNotBlank() && ttsReady) {
                                     tts.speak(target, TextToSpeech.QUEUE_FLUSH, null, "petlingo-demo")
                                 } else status = "語音示範尚未準備完成。"
                             },
-                            enabled = target.isNotBlank()
-                        ) { Icon(Icons.Default.VolumeUp, null); Text("播放示範") }
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Icon(Icons.Default.VolumeUp, null)
+                            Text("示範")
+                        }
                         Button(
                             onClick = {
-                                if (target.isBlank()) return@Button
-                                if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
-                                    startRecognition()
-                                } else permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                                if (ContextCompat.checkSelfPermission(
+                                        context, Manifest.permission.RECORD_AUDIO
+                                    ) == PackageManager.PERMISSION_GRANTED
+                                ) startRecognition()
+                                else permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
                             },
-                            enabled = target.isNotBlank()
-                        ) { Icon(Icons.Default.Mic, null); Text("開始朗讀") }
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Icon(Icons.Default.Mic, null)
+                            Text("跟讀")
+                        }
+                    }
+                    OutlinedButton(onClick = ::nextPrompt, modifier = Modifier.fillMaxWidth()) {
+                        Icon(Icons.Default.Shuffle, null)
+                        Spacer(Modifier.width(6.dp))
+                        Text("隨機下一題")
                     }
                     if (recognized.isNotBlank()) Text("辨識結果：$recognized")
-                    if (score >= 0) Text("本次相似度：$score 分", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                    if (score >= 0) Text("本次相似度：$score 分",
+                        style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                     Text(status)
                 }
             }
         }
         item {
-            Text("快速練習", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-            Text(words.take(8).joinToString("　") { it.english })
-        }
-        item {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Text("最近口說紀錄", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-                if (records.isNotEmpty()) IconButton(onClick = onClear) { Icon(Icons.Default.Delete, "清除口說紀錄") }
+                if (records.isNotEmpty()) IconButton(onClick = onClear) {
+                    Icon(Icons.Default.Delete, "清除口說紀錄")
+                }
             }
         }
         if (records.isEmpty()) item { Text("尚無口說紀錄。") }
         items(records.take(30), key = { it.id }) { record ->
-            SpeakingRecordCard(record)
-        }
-    }
-}
-
-@Composable
-private fun SpeakingRecordCard(record: SpeakingRecord) {
-    val date = remember(record.createdAt) {
-        SimpleDateFormat("MM/dd HH:mm", Locale.getDefault()).format(Date(record.createdAt))
-    }
-    Card(Modifier.fillMaxWidth()) {
-        Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-            Text(record.targetText, fontWeight = FontWeight.Bold)
-            Text("辨識：${record.recognizedText.ifBlank { "無結果" }}")
-            Text("${record.accent}・${record.score} 分・$date")
+            val date = remember(record.createdAt) {
+                SimpleDateFormat("MM/dd HH:mm", Locale.getDefault()).format(Date(record.createdAt))
+            }
+            Card(Modifier.fillMaxWidth()) {
+                Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                    Text(record.targetText, fontWeight = FontWeight.Bold)
+                    Text("辨識：${record.recognizedText.ifBlank { "無結果" }}")
+                    Text("${record.accent}・${record.score} 分・$date")
+                }
+            }
         }
     }
 }

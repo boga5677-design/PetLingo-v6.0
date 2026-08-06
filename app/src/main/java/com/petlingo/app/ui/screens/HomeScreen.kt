@@ -99,7 +99,7 @@ fun HomeScreen(
         item {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 FeatureRow(
-                    HomeFeature("單字學習", "TOEIC 核心單字", Icons.Default.MenuBook, Color(0xFFE8F2D9), onVocabulary),
+                    HomeFeature("GEPT 單字學習", "初級・中級・中高級", Icons.Default.MenuBook, Color(0xFFE8F2D9), onVocabulary),
                     HomeFeature("片語學習", "常用片語與例句", Icons.Default.Chat, Color(0xFFFFE5E0), onPhrase)
                 )
                 FeatureRow(
@@ -108,7 +108,7 @@ fun HomeScreen(
                 )
                 FeatureRow(
                     HomeFeature("聽力測驗", "播放英文・選出中文", Icons.Default.Headphones, Color(0xFFE1EDFA), onListening),
-                    HomeFeature("口說練習", "英美發音・口說評分", Icons.Default.Mic, Color(0xFFEDE5FA), onSpeaking)
+                    HomeFeature("隨機口說", "單字／片語隨機抽題", Icons.Default.Mic, Color(0xFFEDE5FA), onSpeaking)
                 )
                 FeatureRow(
                     HomeFeature("學習分析", "答題時間・弱點分析", Icons.Default.Analytics, Color(0xFFDDF3EE), onAnalytics),

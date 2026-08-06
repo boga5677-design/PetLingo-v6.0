@@ -2,9 +2,11 @@
 CHANGELOG.md
 PROJECT_CONTENTS.txt
 README.md
+WORD_BANK_REPORT.md
 app/build.gradle.kts
 app/proguard-rules.pro
 app/src/main/AndroidManifest.xml
+app/src/main/assets/gept_words.tsv
 app/src/main/assets/toeic_words.tsv
 app/src/main/java/com/petlingo/app/MainActivity.kt
 app/src/main/java/com/petlingo/app/PetLingoViewModel.kt

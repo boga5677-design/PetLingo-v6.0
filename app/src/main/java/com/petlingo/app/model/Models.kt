@@ -3,7 +3,11 @@ package com.petlingo.app.model
 data class Word(
     val id: Int,
     val english: String,
-    val chinese: String
+    val chinese: String,
+    val partOfSpeech: String = "",
+    val note: String = "",
+    val level: String = "",
+    val academic: String = ""
 )
 
 data class Phrase(

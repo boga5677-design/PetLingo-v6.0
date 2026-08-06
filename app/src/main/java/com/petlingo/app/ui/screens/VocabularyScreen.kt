@@ -1,23 +1,14 @@
 package com.petlingo.app.ui.screens
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material3.Card
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -32,9 +23,17 @@ fun VocabularyScreen(
     onQueryChange: (String) -> Unit,
     onToggleFavorite: (Int) -> Unit
 ) {
-    Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Text("單字庫", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
-        Text("共 ${words.size} 筆符合結果・已收藏 ${favorites.size} 個")
+    var selectedLevel by remember { mutableStateOf("全部") }
+    val shown = remember(words, selectedLevel) {
+        if (selectedLevel == "全部") words else words.filter { it.level == selectedLevel }
+    }
+
+    Column(
+        Modifier.fillMaxSize().padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        Text("GEPT 單字庫", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+        Text("共 ${shown.size} 筆符合結果・已收藏 ${favorites.size} 個")
         OutlinedTextField(
             value = query,
             onValueChange = onQueryChange,
@@ -42,21 +41,49 @@ fun VocabularyScreen(
             modifier = Modifier.fillMaxWidth(),
             singleLine = true
         )
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            items(listOf("全部", "初級", "中級", "中高級")) { level ->
+                FilterChip(
+                    selected = selectedLevel == level,
+                    onClick = { selectedLevel = level },
+                    label = { Text(level) }
+                )
+            }
+        }
         LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            items(words, key = { it.id }) { word ->
+            items(shown, key = { it.id }) { word ->
                 Card(Modifier.fillMaxWidth()) {
                     Row(
                         Modifier.fillMaxWidth().padding(14.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Column(Modifier.weight(1f)) {
-                            Text(word.english, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(word.english, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                                if (word.partOfSpeech.isNotBlank()) {
+                                    Spacer(Modifier.width(8.dp))
+                                    Text(word.partOfSpeech, style = MaterialTheme.typography.labelMedium,
+                                        color = MaterialTheme.colorScheme.primary)
+                                }
+                            }
                             Text(word.chinese)
+                            Text(
+                                buildString {
+                                    append(word.level)
+                                    if (word.academic.isNotBlank()) append("・學術字彙 ${word.academic}")
+                                },
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.secondary
+                            )
+                            if (word.note.isNotBlank()) {
+                                Text(word.note, style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
                         }
                         IconButton(onClick = { onToggleFavorite(word.id) }) {
                             Icon(
                                 if (word.id in favorites) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                                contentDescription = if (word.id in favorites) "取消收藏" else "加入收藏"
+                                if (word.id in favorites) "取消收藏" else "加入收藏"
                             )
                         }
                     }
