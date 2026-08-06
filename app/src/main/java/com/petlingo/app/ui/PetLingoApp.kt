@@ -254,8 +254,8 @@ fun PetLingoApp(
             composable("quiz") {
                 QuizScreen(
                     question = questions.getOrNull(currentIndex),
-                    currentIndex = currentIndex,
-                    totalQuestions = questions.size,
+                    index = currentIndex,
+                    total = questions.size,
                     onSelect = vm::select,
                     onSubmit = vm::submit,
                     onNext = vm::next,
@@ -304,8 +304,8 @@ fun PetLingoApp(
 
                 ReadingDetailScreen(
                     passage = vm.readingPassage(id),
-                    onWrongAnswer = vm::addReadingWrong,
-                    onSaveSession = vm::saveReadingSession
+                    onWrong = vm::addReadingWrong,
+                    onComplete = vm::saveReadingSession
                 )
             }
 
@@ -321,7 +321,7 @@ fun PetLingoApp(
 
             composable("wrongAnswers") {
                 WrongAnswersScreen(
-                    wrongAnswers = wrongAnswers,
+                    items = wrongAnswers,
                     onRemove = vm::removeWrongAnswer,
                     onClear = vm::clearWrongAnswers
                 )
@@ -337,7 +337,7 @@ fun PetLingoApp(
                 HistoryScreen(
                     sessions = sessions,
                     readingSessions = readingSessions,
-                    onOpenSession = { session ->
+                    onOpen = { session ->
                         vm.openAnalysis(session)
                         navController.navigate("analytics")
                     },
