@@ -1,17 +1,3 @@
-# PetLingo v6.2 GEPT Complete
+# PetLingo v6.3 Expanded
 
-This Android project contains 8,382 unique vocabulary/sense records converted from the supplied GEPT elementary, intermediate and high-intermediate vocabulary lists.
-
-Core features:
-- GEPT level filtering and search
-- English-to-Chinese and Chinese-to-English quizzes
-- 10／20／40 question modes
-- Listening quiz with TTS
-- Random word/phrase speaking prompts
-- US/UK pronunciation
-- Wrong-answer notebook and response-time analysis
-- Persistent return-to-main-menu button after quizzes
-- GitHub Actions APK build
-
-Build command:
-`./gradlew --no-daemon :app:assembleDebug --stacktrace`
+包含 8,382 筆 GEPT 單字、50 組片語、50 題學測詞彙題，以及片語、克漏字、閱讀和混合模擬測驗。

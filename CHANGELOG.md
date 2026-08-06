@@ -1,11 +1,8 @@
-# PetLingo v6.2.0
+# PetLingo v6.3.0
 
-- Integrated 8,382 deduplicated vocabulary/sense records from the supplied GEPT lists.
-- Added 初級／中級／中高級 filters.
-- Displays part of speech, notes and academic-word metadata.
-- Expanded quiz, listening and speaking pools to the complete word bank.
-- Speaking practice now randomly draws a word or phrase.
-- Added a persistent 返回主選單 button after each quiz.
-- Retained 10／20／40 question modes, wrong-answer records and response-time analysis.
-- versionCode = 22
-- versionName = 6.2.0-gept-wordbank
+- 新增口說練習單字／片語表與搜尋。
+- 新增片語、克漏字、閱讀測驗。
+- 片語題庫擴充至 50 組。
+- 整合 50 題 110–115 學測詞彙題。
+- 閱讀題庫擴充為 8 篇、16 題。
+- versionCode 23；versionName 6.3.0-expanded-tests。

@@ -19,13 +19,16 @@ data class Phrase(
 
 
 enum class QuestionType(val label: String) {
-    VOCABULARY("單字"), GRAMMAR("文法"), READING("閱讀"), LISTENING("聽力")
+    VOCABULARY("單字"), PHRASE("片語"), GRAMMAR("文法"), CLOZE("克漏字"), READING("閱讀"), LISTENING("聽力")
 }
 
 enum class QuizMode(val label: String) {
     ENGLISH_TO_CHINESE("英文選中文"),
     CHINESE_TO_ENGLISH("中文選英文"),
     FAVORITES("收藏單字測驗"),
+    PHRASE("片語測驗"),
+    CLOZE("克漏字"),
+    READING("閱讀測驗"),
     LISTENING("聽力測驗"),
     TOEIC_MOCK("多益模擬題")
 }

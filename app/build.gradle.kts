@@ -12,8 +12,8 @@ android {
         applicationId = "com.petlingo.learning"
         minSdk = 26
         targetSdk = 35
-        versionCode = 22
-        versionName = "6.2.0-gept-wordbank"
+        versionCode = 23
+        versionName = "6.3.0-expanded-tests"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true

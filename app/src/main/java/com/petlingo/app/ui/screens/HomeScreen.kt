@@ -108,7 +108,7 @@ fun HomeScreen(
                 )
                 FeatureRow(
                     HomeFeature("聽力測驗", "播放英文・選出中文", Icons.Default.Headphones, Color(0xFFE1EDFA), onListening),
-                    HomeFeature("隨機口說", "單字／片語隨機抽題", Icons.Default.Mic, Color(0xFFEDE5FA), onSpeaking)
+                    HomeFeature("口說練習", "隨機抽題・單字片語表", Icons.Default.Mic, Color(0xFFEDE5FA), onSpeaking)
                 )
                 FeatureRow(
                     HomeFeature("學習分析", "答題時間・弱點分析", Icons.Default.Analytics, Color(0xFFDDF3EE), onAnalytics),

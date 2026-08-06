@@ -84,7 +84,7 @@ class PetLingoViewModel(app: Application) : AndroidViewModel(app) {
         val pool = if (mode == QuizMode.FAVORITES) allWords.filter { it.id in _favorites.value } else allWords
         if (pool.size < 4) return false
         currentMode = mode
-        _questions.value = quizRepo.createQuiz(pool, count, mode)
+        _questions.value = quizRepo.createQuiz(pool, phrases, count, mode)
         _currentIndex.value = 0
         _answers.value = emptyList()
         _currentCompletedSession.value = null

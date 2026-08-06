@@ -5,29 +5,13 @@ import com.petlingo.app.model.ReadingQuestion
 
 class ReadingRepository {
     fun passages(): List<ReadingPassage> = listOf(
-        ReadingPassage(
-            1, "Office Relocation Notice", "公告",
-            "Beginning August 15, Brightwell Consulting will operate from the 12th floor of Harbor Tower. Our telephone numbers and email addresses will remain unchanged. Visitors should check in at the ground-floor reception desk and bring photo identification.",
-            listOf(
-                ReadingQuestion("When will the company move?", listOf("August 5", "August 12", "August 15", "August 25"), 2, "The notice says the new office begins operating on August 15."),
-                ReadingQuestion("What must visitors bring?", listOf("A laptop", "Photo identification", "A printed invitation", "A parking permit"), 1, "Visitors must bring photo identification.")
-            )
-        ),
-        ReadingPassage(
-            2, "Training Registration Email", "電子郵件",
-            "To: All sales staff. Registration for the customer-service workshop closes this Friday at 5 p.m. The workshop will be held next Tuesday from 9 a.m. to noon in Conference Room B. Please reply to this email only if you require a vegetarian lunch.",
-            listOf(
-                ReadingQuestion("Who should register?", listOf("All sales staff", "New customers", "Only managers", "Conference visitors"), 0, "The email is addressed to all sales staff."),
-                ReadingQuestion("Why should an employee reply?", listOf("To change the date", "To reserve a seat", "To request a vegetarian lunch", "To cancel the workshop"), 2, "A reply is requested only for a vegetarian lunch.")
-            )
-        ),
-        ReadingPassage(
-            3, "Weekend Museum Promotion", "廣告",
-            "This weekend only, City Science Museum members may bring one guest free of charge. The planetarium show requires a separate ticket, and online reservations are strongly recommended because seating is limited.",
-            listOf(
-                ReadingQuestion("What benefit do members receive?", listOf("Free parking", "One free guest", "A free planetarium ticket", "A gift-shop discount"), 1, "Members may bring one guest free of charge."),
-                ReadingQuestion("Why are online reservations recommended?", listOf("The museum is closed", "Tickets are cheaper online", "Seating is limited", "Members need new cards"), 2, "The advertisement states that seating is limited.")
-            )
-        )
+        ReadingPassage(1, "Project Update Email", "電子郵件", "The software upgrade originally scheduled for Friday has been moved to Saturday evening. During the upgrade, employees will not be able to access the shared database. Staff members should save all work and log out before 6 p.m. on Saturday.", listOf(ReadingQuestion("When will the upgrade take place?", listOf("Friday morning", "Friday evening", "Saturday evening", "Sunday afternoon"), 2, "答案可由文章內容直接判斷。"), ReadingQuestion("What should employees do before 6 p.m.?", listOf("Print all emails", "Save their work and log out", "Call the technical team", "Update their passwords"), 1, "答案可由文章內容直接判斷。"))),
+        ReadingPassage(2, "Community Library Notice", "公告", "The Westside Library will close its second floor from September 3 to September 12 for renovation. The first-floor reading room and book-return service will remain open. Reserved books can be collected at the information desk.", listOf(ReadingQuestion("Which area will be closed?", listOf("The first-floor reading room", "The information desk", "The second floor", "The book-return service"), 2, "答案可由文章內容直接判斷。"), ReadingQuestion("Where can reserved books be collected?", listOf("At the information desk", "At the parking office", "On the second floor", "At a nearby school"), 0, "答案可由文章內容直接判斷。"))),
+        ReadingPassage(3, "Hotel Promotion", "廣告", "Book a two-night stay before October 10 and receive complimentary breakfast for two. The offer applies to weekday stays from October through December and cannot be combined with other discounts.", listOf(ReadingQuestion("What is included in the offer?", listOf("Airport transportation", "Breakfast for two", "A third night free", "Weekend parking"), 1, "答案可由文章內容直接判斷。"), ReadingQuestion("When does the offer apply?", listOf("Only on weekends", "During weekday stays", "Only in September", "Throughout the entire year"), 1, "答案可由文章內容直接判斷。"))),
+        ReadingPassage(4, "Workshop Registration", "活動", "The city will hold a free bicycle-safety workshop next Saturday at Riverside Park. Participants must register online by Wednesday. Helmets will be provided, but participants should bring their own bicycles.", listOf(ReadingQuestion("What must participants bring?", listOf("A bicycle", "A helmet", "A printed ticket", "A repair kit"), 0, "答案可由文章內容直接判斷。"), ReadingQuestion("When is the registration deadline?", listOf("Monday", "Wednesday", "Friday", "Saturday"), 1, "答案可由文章內容直接判斷。"))),
+        ReadingPassage(5, "Product Recall", "公告", "Northlake Appliances is recalling Model K20 electric kettles manufactured between January and March. Customers should stop using the product immediately and contact customer service for a free replacement.", listOf(ReadingQuestion("Which product is being recalled?", listOf("A coffee maker", "An electric kettle", "A microwave oven", "A refrigerator"), 1, "答案可由文章內容直接判斷。"), ReadingQuestion("What will customers receive?", listOf("A store coupon", "A repair manual", "A free replacement", "A cash prize"), 2, "答案可由文章內容直接判斷。"))),
+        ReadingPassage(6, "Travel Advisory", "旅遊", "Due to construction near Terminal 2, passengers are advised to arrive at the airport at least three hours before international flights. Shuttle buses between the parking lot and the terminal may take longer than usual.", listOf(ReadingQuestion("Why should passengers arrive early?", listOf("Ticket prices have increased", "Construction may cause delays", "Flights leave from another city", "The terminal closes at night"), 1, "答案可由文章內容直接判斷。"), ReadingQuestion("What may take longer than usual?", listOf("Security checks", "The international flight", "The shuttle-bus trip", "Online check-in"), 2, "答案可由文章內容直接判斷。"))),
+        ReadingPassage(7, "Research Summary", "文章", "A recent study found that short breaks during long study sessions can improve concentration. Students who paused for five minutes every half hour remembered more information than those who studied continuously.", listOf(ReadingQuestion("What improved concentration?", listOf("Studying continuously", "Taking short breaks", "Using a larger classroom", "Reading more quickly"), 1, "答案可由文章內容直接判斷。"), ReadingQuestion("How often did the successful group pause?", listOf("Every five minutes", "Every fifteen minutes", "Every half hour", "Every two hours"), 2, "答案可由文章內容直接判斷。"))),
+        ReadingPassage(8, "Restaurant Reservation", "電子郵件", "Thank you for reserving a table for six at Harbor View Restaurant on Friday at 7:30 p.m. Please tell us by Thursday if any guest has food allergies. The table will be held for fifteen minutes after the reservation time.", listOf(ReadingQuestion("What information is requested?", listOf("Guests' food allergies", "Guests' home addresses", "A parking number", "A payment receipt"), 0, "答案可由文章內容直接判斷。"), ReadingQuestion("How long will the table be held?", listOf("Ten minutes", "Fifteen minutes", "Thirty minutes", "One hour"), 1, "答案可由文章內容直接判斷。")))
     )
 }

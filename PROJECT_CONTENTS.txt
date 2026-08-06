@@ -10,6 +10,7 @@ app/src/main/assets/gept_words.tsv
 app/src/main/assets/toeic_words.tsv
 app/src/main/java/com/petlingo/app/MainActivity.kt
 app/src/main/java/com/petlingo/app/PetLingoViewModel.kt
+app/src/main/java/com/petlingo/app/data/ExamQuestionRepository.kt
 app/src/main/java/com/petlingo/app/data/FavoriteStore.kt
 app/src/main/java/com/petlingo/app/data/PhraseRepository.kt
 app/src/main/java/com/petlingo/app/data/QuizRepository.kt

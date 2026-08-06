@@ -49,6 +49,8 @@ fun SpeakingScreen(
     var accent by remember { mutableStateOf("美式") }
     var score by remember { mutableIntStateOf(-1) }
     var status by remember { mutableStateOf("題目會從單字表或片語題庫隨機抽出。") }
+    var listMode by remember { mutableStateOf("單字表") }
+    var listQuery by remember { mutableStateOf("") }
     var ttsReady by remember { mutableStateOf(false) }
     val tts = remember { TextToSpeech(context) { ttsReady = it == TextToSpeech.SUCCESS } }
 
@@ -117,7 +119,7 @@ fun SpeakingScreen(
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         item {
-            Text("隨機口說練習", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+            Text("口說練習", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
             Text("從 ${words.size} 筆單字與 ${phrases.size} 組片語中抽題。")
         }
         item {
@@ -175,6 +177,23 @@ fun SpeakingScreen(
                 }
             }
         }
+        item {
+            HorizontalDivider()
+            Text("口說練習單字／片語表", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                FilterChip(selected = listMode == "單字表", onClick = { listMode = "單字表" }, label = { Text("單字表") })
+                FilterChip(selected = listMode == "片語表", onClick = { listMode = "片語表" }, label = { Text("片語表") })
+            }
+            OutlinedTextField(value=listQuery,onValueChange={listQuery=it},label={Text("搜尋英文或中文")},modifier=Modifier.fillMaxWidth(),singleLine=true)
+        }
+        if (listMode == "單字表") {
+            val shownWords=words.filter{listQuery.isBlank()||it.english.contains(listQuery,true)||it.chinese.contains(listQuery)}.take(200)
+            items(shownWords,key={"word-${it.id}"}){word->Card(Modifier.fillMaxWidth()){Row(Modifier.fillMaxWidth().padding(12.dp),horizontalArrangement=Arrangement.SpaceBetween){Column(Modifier.weight(1f)){Text(word.english,fontWeight=FontWeight.Bold);Text("${word.chinese}・${word.level}",style=MaterialTheme.typography.bodySmall)};TextButton({target=word.english;recognized="";score=-1}){Text("練習")}}}}
+        } else {
+            val shownPhrases=phrases.filter{listQuery.isBlank()||it.english.contains(listQuery,true)||it.chinese.contains(listQuery)}
+            items(shownPhrases,key={"phrase-${it.id}"}){phrase->Card(Modifier.fillMaxWidth()){Row(Modifier.fillMaxWidth().padding(12.dp),horizontalArrangement=Arrangement.SpaceBetween){Column(Modifier.weight(1f)){Text(phrase.english,fontWeight=FontWeight.Bold);Text(phrase.chinese,style=MaterialTheme.typography.bodySmall);Text(phrase.example,style=MaterialTheme.typography.labelSmall)};TextButton({target=phrase.english;recognized="";score=-1}){Text("練習")}}}}
+        }
+
         item {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Text("最近口說紀錄", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
