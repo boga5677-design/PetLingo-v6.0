@@ -4,6 +4,8 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import com.petlingo.app.data.FavoriteStore
 import com.petlingo.app.data.QuizRepository
+import com.petlingo.app.data.QuizProgressStore
+import com.petlingo.app.data.SavedQuizProgress
 import com.petlingo.app.data.PhraseRepository
 import com.petlingo.app.data.ReadingRepository
 import com.petlingo.app.data.ReadingStore
@@ -36,6 +38,7 @@ class PetLingoViewModel(app: Application) : AndroidViewModel(app) {
     private val speakingStore = SpeakingStore(app)
     private val settingsStore = SettingsStore(app)
     private val noteStore = NoteStore(app)
+    private val progressStore = QuizProgressStore(app)
     val phrases = PhraseRepository().phrases()
     val readingPassages: List<ReadingPassage> = ReadingRepository().passages()
 
@@ -71,6 +74,45 @@ class PetLingoViewModel(app: Application) : AndroidViewModel(app) {
     private var firstChoice: Int? = null
     private var currentQuestionSubmitted = false
 
+    private val _hasActiveQuiz = MutableStateFlow(false)
+    val hasActiveQuiz: StateFlow<Boolean> = _hasActiveQuiz
+
+    init {
+        restoreQuizProgress()
+    }
+
+    private fun restoreQuizProgress() {
+        val saved = progressStore.load() ?: return
+        _questions.value = saved.questions
+        _currentIndex.value = saved.currentIndex
+        _answers.value = saved.answers
+        currentMode = saved.mode
+        quizStartedAt = saved.quizStartedAt
+        questionStartedAt = System.currentTimeMillis()
+        currentQuestionSubmitted = saved.currentQuestionSubmitted
+        firstChoice = null
+        _hasActiveQuiz.value = true
+    }
+
+    private fun saveQuizProgress() {
+        if (_questions.value.isEmpty() || _currentCompletedSession.value != null) return
+        progressStore.save(
+            SavedQuizProgress(
+                questions = _questions.value,
+                currentIndex = _currentIndex.value,
+                answers = _answers.value,
+                mode = currentMode,
+                quizStartedAt = quizStartedAt,
+                questionStartedAt = questionStartedAt,
+                currentQuestionSubmitted = currentQuestionSubmitted
+            )
+        )
+        _hasActiveQuiz.value = true
+    }
+
+    fun resumeQuiz(): Boolean = _hasActiveQuiz.value && _questions.value.isNotEmpty()
+
+
     val words: List<Word> get() = allWords
 
     fun setQuery(value: String) { _query.value = value }
@@ -100,6 +142,8 @@ class PetLingoViewModel(app: Application) : AndroidViewModel(app) {
         questionStartedAt = quizStartedAt
         firstChoice = null
         currentQuestionSubmitted = false
+        progressStore.clear()
+        saveQuizProgress()
         return true
     }
 
@@ -125,6 +169,7 @@ class PetLingoViewModel(app: Application) : AndroidViewModel(app) {
         )
         currentQuestionSubmitted = true
         _answers.value = _answers.value + record
+        saveQuizProgress()
         if (!record.isCorrect && settingsStore.settings.value.addWrongAnswerAutomatically) {
             addWrongAnswer(
                 record.prompt,
@@ -139,15 +184,18 @@ class PetLingoViewModel(app: Application) : AndroidViewModel(app) {
         return record
     }
 
-    fun next(): Boolean = if (_currentIndex.value < _questions.value.lastIndex) {
-        _currentIndex.value++
-        questionStartedAt = System.currentTimeMillis()
-        firstChoice = null
-        currentQuestionSubmitted = false
-        true
-    } else {
-        finish()
-        false
+    fun next(): Boolean {
+        return if (_currentIndex.value < _questions.value.lastIndex) {
+            _currentIndex.value++
+            questionStartedAt = System.currentTimeMillis()
+            firstChoice = null
+            currentQuestionSubmitted = false
+            saveQuizProgress()
+            true
+        } else {
+            finish()
+            false
+        }
     }
 
     private fun finish() {
@@ -162,6 +210,8 @@ class PetLingoViewModel(app: Application) : AndroidViewModel(app) {
         _currentCompletedSession.value = session
         _analysisSession.value = session
         _sessions.value = store.loadSessions()
+        progressStore.clear()
+        _hasActiveQuiz.value = false
     }
 
     fun openAnalysis(session: QuizSession) { _analysisSession.value = session }

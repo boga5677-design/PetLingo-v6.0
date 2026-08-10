@@ -33,6 +33,9 @@ import com.petlingo.app.ui.screens.FavoritesScreen
 import com.petlingo.app.ui.screens.HistoryScreen
 import com.petlingo.app.ui.screens.HomeScreen
 import com.petlingo.app.ui.screens.ListeningSetupScreen
+import com.petlingo.app.ui.screens.SpeakingTestScreen
+import com.petlingo.app.ui.screens.ListeningPracticeScreen
+import com.petlingo.app.ui.screens.LearningScreen
 import com.petlingo.app.ui.screens.NotesScreen
 import com.petlingo.app.ui.screens.PhraseScreen
 import com.petlingo.app.ui.screens.QuizScreen
@@ -66,6 +69,7 @@ fun PetLingoApp(
     val appSettings by settingsStore.settings.collectAsState()
     val notes by vm.notes.collectAsState()
     val noteKeys = remember(notes) { notes.map { it.key }.toSet() }
+    val hasActiveQuiz by vm.hasActiveQuiz.collectAsState()
 
     val startOfToday = remember {
         Calendar.getInstance().apply {
@@ -91,7 +95,7 @@ fun PetLingoApp(
             label = "首頁"
         ),
         BottomNavigationItem(
-            route = "vocabulary",
+            route = "learning",
             icon = Icons.Default.MenuBook,
             label = "學習"
         ),
@@ -106,7 +110,7 @@ fun PetLingoApp(
             label = "聽力"
         ),
         BottomNavigationItem(
-            route = "speaking",
+            route = "speakingTest",
             icon = Icons.Default.RecordVoiceOver,
             label = "口說"
         )
@@ -199,7 +203,7 @@ fun PetLingoApp(
                         navController.navigate("wrongAnswers")
                     },
                     onSpeaking = {
-                        navController.navigate("speaking")
+                        navController.navigate("speakingTest")
                     },
                     onListening = {
                         navController.navigate("listeningSetup")
@@ -219,6 +223,29 @@ fun PetLingoApp(
                     onSettings = {
                         navController.navigate("settings")
                     }
+                )
+            }
+
+            composable("learning") {
+                LearningScreen(
+                    onVocabulary = { navController.navigate("vocabulary") },
+                    onPhrase = { navController.navigate("phrases") },
+                    onListeningPractice = { navController.navigate("listeningPractice") },
+                    onSpeakingPractice = { navController.navigate("speakingPractice") }
+                )
+            }
+
+            composable("listeningPractice") {
+                ListeningPracticeScreen(words = vm.words)
+            }
+
+            composable("speakingPractice") {
+                SpeakingScreen(
+                    words = vm.words,
+                    phrases = vm.phrases,
+                    records = speakingRecords,
+                    onSave = vm::saveSpeakingRecord,
+                    onClear = vm::clearSpeakingHistory
                 )
             }
 
@@ -243,6 +270,10 @@ fun PetLingoApp(
             composable("quizSetup") {
                 QuizSetupScreen(
                     favoriteCount = favorites.size,
+                    hasActiveQuiz = hasActiveQuiz,
+                    onResume = {
+                        if (vm.resumeQuiz()) navController.navigate("quiz")
+                    },
                     onStart = vm::newQuiz,
                     onReady = {
                         navController.navigate("quiz")
@@ -252,8 +283,11 @@ fun PetLingoApp(
 
             composable("listeningSetup") {
                 ListeningSetupScreen(
-                    words = vm.words,
                     onStart = vm::newQuiz,
+                    hasActiveQuiz = hasActiveQuiz,
+                    onResume = {
+                        if (vm.resumeQuiz()) navController.navigate("quiz")
+                    },
                     onReady = {
                         navController.navigate("quiz")
                     }
@@ -292,6 +326,14 @@ fun PetLingoApp(
                                 inclusive = true
                             }
                         }
+                    },
+                    onBackToQuizSetup = {
+                        navController.navigate("quizSetup") {
+                            popUpTo("quizSetup") {
+                                inclusive = true
+                            }
+                            launchSingleTop = true
+                        }
                     }
                 )
             }
@@ -320,13 +362,11 @@ fun PetLingoApp(
                 )
             }
 
-            composable("speaking") {
-                SpeakingScreen(
+            composable("speakingTest") {
+                SpeakingTestScreen(
                     words = vm.words,
                     phrases = vm.phrases,
-                    records = speakingRecords,
-                    onSave = vm::saveSpeakingRecord,
-                    onClear = vm::clearSpeakingHistory
+                    onSave = vm::saveSpeakingRecord
                 )
             }
 

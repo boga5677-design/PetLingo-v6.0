@@ -1,15 +1,19 @@
 package com.petlingo.app.ui.screens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Analytics
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -19,10 +23,21 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.petlingo.app.R
 import com.petlingo.app.model.QuizSession
+import com.petlingo.app.ui.components.RadarChart
 import com.petlingo.app.util.AnalyticsCalculator
 
 @Composable
-fun ResultScreen(session: QuizSession?, onAnalytics: () -> Unit, onHome: () -> Unit) {
+fun ResultScreen(
+    session: QuizSession?,
+    onAnalytics: () -> Unit,
+    onHome: () -> Unit,
+    onBackToQuizSetup: () -> Unit
+) {
+    var showQuestionTimes by remember { mutableStateOf(false) }
+    BackHandler { onBackToQuizSetup() }
+
+    val metrics = AnalyticsCalculator.metrics(session)
+
     Column(Modifier.fillMaxSize()) {
         LazyColumn(
             Modifier.weight(1f),
@@ -43,18 +58,16 @@ fun ResultScreen(session: QuizSession?, onAnalytics: () -> Unit, onHome: () -> U
                 Card(
                     Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(22.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer
-                    )
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
                 ) {
                     Column(
                         Modifier.fillMaxWidth().padding(8.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Image(
-                            painter = painterResource(com.petlingo.app.R.drawable.petlingo_hero),
+                            painter = painterResource(R.drawable.petlingo_hero),
                             contentDescription = "可愛寵物替你加油",
-                            modifier = Modifier.fillMaxWidth().heightIn(max = 170.dp),
+                            modifier = Modifier.fillMaxWidth().heightIn(max = 155.dp),
                             contentScale = ContentScale.Fit
                         )
                         Text(
@@ -80,23 +93,58 @@ fun ResultScreen(session: QuizSession?, onAnalytics: () -> Unit, onHome: () -> U
                 }
 
                 item {
-                    Card {
-                        Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                            ResultLine("總作答時間", AnalyticsCalculator.totalTime(session.totalMillis))
-                            ResultLine(
-                                "平均每題時間",
-                                AnalyticsCalculator.seconds(AnalyticsCalculator.averageMillis(session.answers))
+                    Text("本次能力雷達圖", fontWeight = FontWeight.Bold)
+                    RadarChart(
+                        values = listOf(
+                            metrics.vocabulary,
+                            metrics.grammar,
+                            metrics.reading,
+                            metrics.listening,
+                            metrics.speed
+                        ),
+                        labels = listOf("單字能力", "文法能力", "閱讀能力", "聽力能力", "作答速度")
+                    )
+                }
+
+                item {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { showQuestionTimes = !showQuestionTimes }
+                    ) {
+                        Row(
+                            Modifier.fillMaxWidth().padding(14.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(Modifier.weight(1f)) {
+                                Text("總秒數", fontWeight = FontWeight.Bold)
+                                Text(
+                                    String.format("%.1f 秒", session.totalMillis / 1000.0),
+                                    style = MaterialTheme.typography.headlineSmall,
+                                    fontWeight = FontWeight.Black
+                                )
+                                Text("點一下查看各題秒數", style = MaterialTheme.typography.bodySmall)
+                            }
+                            Icon(
+                                if (showQuestionTimes) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                                contentDescription = null
                             )
-                            ResultLine("修改答案", "${AnalyticsCalculator.changedCount(session)} 題")
                         }
                     }
                 }
 
-                itemsIndexed(session.answers) { index, answer ->
-                    Text(
-                        "Q${index + 1} ${if (answer.isCorrect) "✓" else "✗"} " +
-                            AnalyticsCalculator.seconds(answer.elapsedMillis)
-                    )
+                if (showQuestionTimes) {
+                    itemsIndexed(session.answers) { index, answer ->
+                        Card {
+                            Row(
+                                Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 10.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text("第 ${index + 1} 題 ${if (answer.isCorrect) "✓" else "✗"}")
+                                Text(String.format("%.1f 秒", answer.elapsedMillis / 1000.0), fontWeight = FontWeight.Bold)
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -114,7 +162,7 @@ fun ResultScreen(session: QuizSession?, onAnalytics: () -> Unit, onHome: () -> U
                 OutlinedButton(onClick = onAnalytics, modifier = Modifier.fillMaxWidth()) {
                     Icon(Icons.Default.Analytics, null)
                     Spacer(Modifier.width(8.dp))
-                    Text("查看本次答題分析")
+                    Text("查看完整答題分析")
                 }
             }
         }
@@ -134,12 +182,4 @@ private fun encouragement(score: Int): String = when {
     score >= 70 -> "表現很不錯，再複習一下就更強了！ 🐾"
     score >= 50 -> "有進步就是好事，一起把錯題再練一次！ 💪"
     else -> "黑糖、偶貴、熊熊陪你慢慢練習！ 🌟"
-}
-
-@Composable
-private fun ResultLine(label: String, value: String) {
-    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-        Text(label)
-        Text(value, fontWeight = FontWeight.Bold)
-    }
 }

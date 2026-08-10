@@ -98,29 +98,31 @@ fun QuizScreen(
             Text("第 ${index + 1} / $total 題", fontWeight = FontWeight.Bold)
             Spacer(Modifier.weight(1f))
 
-            IconButton(
-                onClick = {
-                    onToggleNote(
-                        StudyNote(
-                            key = questionKey,
-                            category = category,
-                            kind = "題目",
-                            title = question.prompt,
-                            content = "正確答案：${question.options.getOrNull(question.correctIndex).orEmpty()}",
-                            detail = question.explanation
+            if (containsEnglish(question.prompt)) {
+                IconButton(
+                    onClick = {
+                        onToggleNote(
+                            StudyNote(
+                                key = questionKey,
+                                category = category,
+                                kind = "英文題目",
+                                title = question.prompt,
+                                content = "正確答案：${question.options.getOrNull(question.correctIndex).orEmpty()}",
+                                detail = question.explanation
+                            )
                         )
+                    }
+                ) {
+                    Icon(
+                        if (questionKey in noteKeys) Icons.Default.Star else Icons.Default.StarBorder,
+                        if (questionKey in noteKeys) "取消英文筆記" else "加入英文筆記",
+                        tint = if (questionKey in noteKeys) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        }
                     )
                 }
-            ) {
-                Icon(
-                    if (questionKey in noteKeys) Icons.Default.Star else Icons.Default.StarBorder,
-                    if (questionKey in noteKeys) "取消題目筆記" else "加入題目筆記",
-                    tint = if (questionKey in noteKeys) {
-                        MaterialTheme.colorScheme.primary
-                    } else {
-                        MaterialTheme.colorScheme.onSurfaceVariant
-                    }
-                )
             }
 
             Text("❤️ 20", color = Color(0xFFE64A3B), fontWeight = FontWeight.Bold)
@@ -231,35 +233,37 @@ fun QuizScreen(
                             style = MaterialTheme.typography.bodyLarge
                         )
 
-                        IconButton(
-                            onClick = {
-                                onToggleNote(
-                                    StudyNote(
-                                        key = optionKey,
-                                        category = category,
-                                        kind = "題目選項",
-                                        title = question.prompt,
-                                        content = option,
-                                        detail = if (correct) {
-                                            "此選項為正確答案。${question.explanation}"
-                                        } else {
-                                            "此選項不是正確答案。${question.explanation}"
-                                        }
+                        if (containsEnglish(option)) {
+                            IconButton(
+                                onClick = {
+                                    onToggleNote(
+                                        StudyNote(
+                                            key = optionKey,
+                                            category = category,
+                                            kind = "英文選項",
+                                            title = option,
+                                            content = question.prompt,
+                                            detail = if (correct) {
+                                                "此英文為正確答案。${question.explanation}"
+                                            } else {
+                                                "此英文不是正確答案。${question.explanation}"
+                                            }
+                                        )
                                     )
+                                }
+                            ) {
+                                Icon(
+                                    if (optionKey in noteKeys) Icons.Default.Star else Icons.Default.StarBorder,
+                                    if (optionKey in noteKeys) "取消英文筆記" else "加入英文筆記",
+                                    tint = if (optionKey in noteKeys) {
+                                        if (submitted && (correct || chosen)) Color.White
+                                        else MaterialTheme.colorScheme.primary
+                                    } else {
+                                        if (submitted && (correct || chosen)) Color.White
+                                        else MaterialTheme.colorScheme.onSurfaceVariant
+                                    }
                                 )
                             }
-                        ) {
-                            Icon(
-                                if (optionKey in noteKeys) Icons.Default.Star else Icons.Default.StarBorder,
-                                if (optionKey in noteKeys) "取消選項筆記" else "加入選項筆記",
-                                tint = if (optionKey in noteKeys) {
-                                    if (submitted && (correct || chosen)) Color.White
-                                    else MaterialTheme.colorScheme.primary
-                                } else {
-                                    if (submitted && (correct || chosen)) Color.White
-                                    else MaterialTheme.colorScheme.onSurfaceVariant
-                                }
-                            )
                         }
                     }
                 }
@@ -332,3 +336,5 @@ private fun questionCategory(type: QuestionType): String = when (type) {
     QuestionType.READING -> "閱讀測驗"
     QuestionType.LISTENING -> "聽力測驗"
 }
+
+private fun containsEnglish(text: String): Boolean = text.any { it in 'A'..'Z' || it in 'a'..'z' }

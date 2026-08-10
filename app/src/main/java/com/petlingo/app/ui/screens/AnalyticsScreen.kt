@@ -62,7 +62,16 @@ fun AnalyticsScreen(session: QuizSession?) {
 
         item {
             Text("本次能力雷達圖", fontWeight = FontWeight.Bold)
-            RadarChart(listOf(metrics.speed, metrics.accuracy, metrics.vocabulary, metrics.grammar, metrics.reading, metrics.listening))
+            RadarChart(
+                values = listOf(
+                    metrics.vocabulary,
+                    metrics.grammar,
+                    metrics.reading,
+                    metrics.listening,
+                    metrics.speed
+                ),
+                labels = listOf("單字能力", "文法能力", "閱讀能力", "聽力能力", "作答速度")
+            )
         }
 
         item {
