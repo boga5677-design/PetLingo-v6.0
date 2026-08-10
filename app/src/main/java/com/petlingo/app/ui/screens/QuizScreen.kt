@@ -38,19 +38,11 @@ fun QuizScreen(
     onNext: () -> Boolean,
     onFinished: () -> Unit
 ) {
-    var selected by remember(index) {
-        mutableStateOf<Int?>(null)
-    }
-
-    var result by remember(index) {
-        mutableStateOf<AnswerRecord?>(null)
-    }
+    var selected by remember(index) { mutableStateOf<Int?>(null) }
+    var result by remember(index) { mutableStateOf<AnswerRecord?>(null) }
 
     val context = LocalContext.current
-    var ttsReady by remember {
-        mutableStateOf(false)
-    }
-
+    var ttsReady by remember { mutableStateOf(false) }
     val tts = remember {
         TextToSpeech(context) { status ->
             ttsReady = status == TextToSpeech.SUCCESS
@@ -66,7 +58,6 @@ fun QuizScreen(
 
     fun speak() {
         if (!ttsReady || question == null) return
-
         tts.language = Locale.US
         tts.setSpeechRate(0.88f)
         tts.speak(
@@ -77,361 +68,233 @@ fun QuizScreen(
         )
     }
 
-    LaunchedEffect(
-        question?.id,
-        ttsReady
-    ) {
-        if (
-            question?.type == QuestionType.LISTENING &&
-            ttsReady
-        ) {
+    LaunchedEffect(question?.id, ttsReady) {
+        if (question?.type == QuestionType.LISTENING && ttsReady) {
             speak()
         }
     }
 
     if (question == null) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             CircularProgressIndicator()
         }
-
         return
     }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                MaterialTheme.colorScheme.background
-            )
-            .verticalScroll(
-                rememberScrollState()
-            )
-            .padding(
-                horizontal = 18.dp,
-                vertical = 16.dp
-            ),
-        verticalArrangement =
-            Arrangement.spacedBy(14.dp)
+            .background(MaterialTheme.colorScheme.background)
+            .padding(horizontal = 16.dp, vertical = 10.dp)
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment =
-                Alignment.CenterVertically
+            Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "第 ${index + 1} / $total 題",
+                "第 ${index + 1} / $total 題",
                 fontWeight = FontWeight.Bold
             )
-
-            Spacer(
-                modifier = Modifier.weight(1f)
-            )
-
+            Spacer(Modifier.weight(1f))
             Text(
-                text = "❤️ 20",
+                "❤️ 20",
                 color = Color(0xFFE64A3B),
                 fontWeight = FontWeight.Bold
             )
         }
 
+        Spacer(Modifier.height(6.dp))
+
         LinearProgressIndicator(
-            progress = {
-                if (total == 0) {
-                    0f
-                } else {
-                    (index + 1f) / total
-                }
-            },
+            progress = { if (total == 0) 0f else (index + 1f) / total },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(6.dp)
+                .height(5.dp)
         )
 
-        Spacer(
-            modifier = Modifier.height(20.dp)
-        )
+        Spacer(Modifier.height(8.dp))
 
-        if (
-            question.type ==
-            QuestionType.LISTENING
+        // Only this middle area scrolls when a long reading/cloze question needs it.
+        // The next button below always stays visible.
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Icon(
-                imageVector =
+            if (question.type == QuestionType.LISTENING) {
+                Icon(
                     Icons.Default.Headphones,
-                contentDescription = null,
-                modifier = Modifier
-                    .align(
-                        Alignment.CenterHorizontally
-                    )
-                    .size(68.dp),
-                tint =
-                    MaterialTheme.colorScheme.primary
-            )
-
-            FilledTonalButton(
-                onClick = ::speak,
-                modifier = Modifier
-                    .align(
-                        Alignment.CenterHorizontally
-                    )
-                    .heightIn(min = 58.dp)
-            ) {
-                Icon(
-                    imageVector =
-                        Icons.Default.VolumeUp,
-                    contentDescription = null
+                    contentDescription = null,
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .size(48.dp),
+                    tint = MaterialTheme.colorScheme.primary
                 )
 
-                Spacer(
-                    modifier = Modifier.width(8.dp)
-                )
-
-                Text("播放／重播")
-            }
-        } else {
-            Text(
-                text = question.prompt,
-                modifier = Modifier.fillMaxWidth(),
-                style =
-                    MaterialTheme.typography
-                        .headlineMedium,
-                fontWeight = FontWeight.Black,
-                textAlign = TextAlign.Center
-            )
-
-            IconButton(
-                onClick = ::speak,
-                modifier = Modifier.align(
-                    Alignment.CenterHorizontally
-                )
-            ) {
-                Icon(
-                    imageVector =
-                        Icons.Default.VolumeUp,
-                    contentDescription = "播放發音",
-                    tint = Color(0xFF1684E8)
-                )
-            }
-        }
-
-        Spacer(
-            modifier = Modifier.height(8.dp)
-        )
-
-        question.options.forEachIndexed {
-                optionIndex,
-                option ->
-
-            val submitted = result != null
-            val correct =
-                optionIndex ==
-                    question.correctIndex
-            val chosen =
-                selected == optionIndex
-
-            val background = when {
-                submitted && correct ->
-                    Color(0xFF6FA968)
-
-                submitted &&
-                    chosen &&
-                    !correct ->
-                    Color(0xFFF05045)
-
-                else ->
-                    Color.Transparent
-            }
-
-            val foreground =
-                if (
-                    submitted &&
-                    (correct || chosen)
+                FilledTonalButton(
+                    onClick = ::speak,
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .heightIn(min = 46.dp)
                 ) {
-                    Color.White
-                } else {
-                    MaterialTheme
-                        .colorScheme
-                        .onSurface
+                    Icon(Icons.Default.VolumeUp, null)
+                    Spacer(Modifier.width(6.dp))
+                    Text("播放／重播")
+                }
+            } else {
+                Text(
+                    question.prompt,
+                    modifier = Modifier.fillMaxWidth(),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Black,
+                    textAlign = TextAlign.Center
+                )
+
+                IconButton(
+                    onClick = ::speak,
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .size(40.dp)
+                ) {
+                    Icon(
+                        Icons.Default.VolumeUp,
+                        contentDescription = "播放發音",
+                        tint = Color(0xFF1684E8)
+                    )
+                }
+            }
+
+            question.options.forEachIndexed { optionIndex, option ->
+                val submitted = result != null
+                val correct = optionIndex == question.correctIndex
+                val chosen = selected == optionIndex
+
+                val background = when {
+                    submitted && correct -> Color(0xFF6FA968)
+                    submitted && chosen && !correct -> Color(0xFFF05045)
+                    else -> Color.Transparent
                 }
 
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable(
-                        enabled = !submitted
-                    ) {
-                        selected = optionIndex
-                        onSelect(optionIndex)
-                        result =
-                            onSubmit(optionIndex)
-                    },
-                shape =
-                    RoundedCornerShape(28.dp),
-                color = background,
-                border =
-                    if (
-                        !submitted ||
-                        (!correct && !chosen)
-                    ) {
-                        ButtonDefaults
-                            .outlinedButtonBorder
+                val foreground = if (submitted && (correct || chosen)) {
+                    Color.White
+                } else {
+                    MaterialTheme.colorScheme.onSurface
+                }
+
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable(enabled = !submitted) {
+                            selected = optionIndex
+                            onSelect(optionIndex)
+                            result = onSubmit(optionIndex)
+                        },
+                    shape = RoundedCornerShape(20.dp),
+                    color = background,
+                    border = if (!submitted || (!correct && !chosen)) {
+                        ButtonDefaults.outlinedButtonBorder
                     } else {
                         null
                     }
-            ) {
-                Row(
-                    modifier = Modifier.padding(
-                        horizontal = 18.dp,
-                        vertical = 16.dp
-                    ),
-                    verticalAlignment =
-                        Alignment.CenterVertically
-                ) {
-                    if (
-                        submitted &&
-                        (correct || chosen)
-                    ) {
-                        Icon(
-                            imageVector =
-                                if (correct) {
-                                    Icons.Default
-                                        .CheckCircle
-                                } else {
-                                    Icons.Default.Close
-                                },
-                            contentDescription = null,
-                            tint = Color.White
-                        )
-
-                        Spacer(
-                            modifier =
-                                Modifier.width(10.dp)
-                        )
-                    }
-
-                    Text(
-                        text = option,
-                        modifier =
-                            Modifier.weight(1f),
-                        color = foreground,
-                        textAlign =
-                            TextAlign.Center,
-                        style =
-                            MaterialTheme
-                                .typography
-                                .titleMedium
-                    )
-                }
-            }
-        }
-
-        result?.let { answer ->
-            Card(
-                colors =
-                    CardDefaults.cardColors(
-                        containerColor =
-                            if (
-                                answer.isCorrect
-                            ) {
-                                Color(0xFFE5F3DF)
-                            } else {
-                                Color(0xFFFFE3DF)
-                            }
-                    ),
-                shape =
-                    RoundedCornerShape(20.dp)
-            ) {
-                Column(
-                    modifier =
-                        Modifier.padding(16.dp),
-                    verticalArrangement =
-                        Arrangement.spacedBy(6.dp)
                 ) {
                     Row(
-                        verticalAlignment =
-                            Alignment.CenterVertically
+                        Modifier.padding(horizontal = 14.dp, vertical = 11.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(
-                            imageVector =
-                                if (
-                                    answer.isCorrect
-                                ) {
-                                    Icons.Default
-                                        .CheckCircle
+                        if (submitted && (correct || chosen)) {
+                            Icon(
+                                if (correct) Icons.Default.CheckCircle else Icons.Default.Close,
+                                contentDescription = null,
+                                tint = Color.White,
+                                modifier = Modifier.size(22.dp)
+                            )
+                            Spacer(Modifier.width(7.dp))
+                        }
+
+                        Text(
+                            option,
+                            modifier = Modifier.weight(1f),
+                            color = foreground,
+                            textAlign = TextAlign.Center,
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
+                }
+            }
+
+            result?.let { answer ->
+                Card(
+                    colors = CardDefaults.cardColors(
+                        containerColor = if (answer.isCorrect) {
+                            Color(0xFFE5F3DF)
+                        } else {
+                            Color(0xFFFFE3DF)
+                        }
+                    ),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Column(
+                        Modifier.padding(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(3.dp)
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                if (answer.isCorrect) {
+                                    Icons.Default.CheckCircle
                                 } else {
                                     Icons.Default.Close
                                 },
-                            contentDescription = null,
-                            tint =
-                                if (
-                                    answer.isCorrect
-                                ) {
+                                contentDescription = null,
+                                tint = if (answer.isCorrect) {
                                     Color(0xFF4B9254)
                                 } else {
                                     Color(0xFFD84B40)
-                                }
-                        )
-
-                        Spacer(
-                            modifier =
-                                Modifier.width(8.dp)
-                        )
-
-                        Text(
-                            text =
-                                if (
-                                    answer.isCorrect
-                                ) {
-                                    "答對了！"
-                                } else {
-                                    "不正確"
                                 },
-                            fontWeight =
-                                FontWeight.Bold,
-                            color =
-                                if (
-                                    answer.isCorrect
-                                ) {
+                                modifier = Modifier.size(21.dp)
+                            )
+                            Spacer(Modifier.width(6.dp))
+                            Text(
+                                if (answer.isCorrect) "答對了！" else "不正確",
+                                fontWeight = FontWeight.Bold,
+                                color = if (answer.isCorrect) {
                                     Color(0xFF3D7D46)
                                 } else {
                                     Color(0xFFD84B40)
                                 }
-                        )
-                    }
+                            )
+                        }
 
-                    if (!answer.isCorrect) {
+                        if (!answer.isCorrect) {
+                            Text(
+                                "正確答案：${answer.correctAnswer}",
+                                fontWeight = FontWeight.Bold,
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+
+                        if (question.explanation.isNotBlank()) {
+                            Text(
+                                question.explanation,
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+
                         Text(
-                            text =
-                                "正確答案：" +
-                                answer.correctAnswer,
-                            fontWeight =
-                                FontWeight.Bold
+                            "作答時間：${AnalyticsCalculator.seconds(answer.elapsedMillis)}",
+                            style = MaterialTheme.typography.labelSmall
                         )
                     }
-
-                    Text(
-                        text =
-                            question.explanation
-                    )
-
-                    Text(
-                        text =
-                            "作答時間：" +
-                            AnalyticsCalculator
-                                .seconds(
-                                    answer.elapsedMillis
-                                ),
-                        style =
-                            MaterialTheme
-                                .typography
-                                .bodySmall
-                    )
                 }
             }
 
+            Spacer(Modifier.height(4.dp))
+        }
+
+        // Fixed action area: no need to scroll to reach the next button.
+        if (result != null) {
+            Spacer(Modifier.height(8.dp))
             Button(
                 onClick = {
                     if (!onNext()) {
@@ -440,35 +303,20 @@ fun QuizScreen(
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(min = 56.dp),
-                shape =
-                    RoundedCornerShape(16.dp)
+                    .heightIn(min = 52.dp),
+                shape = RoundedCornerShape(16.dp)
             ) {
                 Text(
-                    text =
-                        if (
-                            index + 1 >= total
-                        ) {
-                            "完成並查看結果"
-                        } else {
-                            "下一題"
-                        }
+                    if (index + 1 >= total) {
+                        "完成並查看結果"
+                    } else {
+                        "下一題"
+                    },
+                    fontWeight = FontWeight.Bold
                 )
-
-                Spacer(
-                    modifier = Modifier.width(8.dp)
-                )
-
-                Icon(
-                    imageVector =
-                        Icons.Default.ArrowForward,
-                    contentDescription = null
-                )
+                Spacer(Modifier.width(8.dp))
+                Icon(Icons.Default.ArrowForward, null)
             }
         }
-
-        Spacer(
-            modifier = Modifier.height(20.dp)
-        )
     }
 }

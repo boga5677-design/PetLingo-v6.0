@@ -244,6 +244,7 @@ fun PetLingoApp(
 
             composable("listeningSetup") {
                 ListeningSetupScreen(
+                    words = vm.words,
                     onStart = vm::newQuiz,
                     onReady = {
                         navController.navigate("quiz")
