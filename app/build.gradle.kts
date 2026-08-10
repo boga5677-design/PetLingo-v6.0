@@ -12,15 +12,29 @@ android {
         applicationId = "com.petlingo.learning"
         minSdk = 26
         targetSdk = 35
-        versionCode = 28
-        versionName = "6.4.4-achievement-badges"
+        versionCode = 29
+        versionName = "6.4.5"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }
 
+    signingConfigs {
+        create("stableUpdate") {
+            storeFile = rootProject.file("signing/petlingo-update.jks")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
+    }
+
     buildTypes {
+        getByName("debug") {
+            signingConfig = signingConfigs.getByName("stableUpdate")
+        }
+
         release {
+            signingConfig = signingConfigs.getByName("stableUpdate")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),

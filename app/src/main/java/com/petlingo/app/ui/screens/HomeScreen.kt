@@ -79,7 +79,7 @@ fun HomeScreen(
                     text = "PetLingo",
                     style = MaterialTheme.typography.headlineLarge,
                     fontWeight = FontWeight.Black,
-                    color = Color(0xFF3B2518)
+                    color = MaterialTheme.colorScheme.onBackground
                 )
 
                 Spacer(modifier = Modifier.weight(1f))
@@ -89,14 +89,14 @@ fun HomeScreen(
                 ) {
                     Text(
                         text = "Hi, 學習者 👋",
-                        color = HomeTitleColor,
+                        color = MaterialTheme.colorScheme.onBackground,
                         fontWeight = FontWeight.Bold
                     )
 
                     Text(
                         text = "持續學習的每一天都很棒！",
                         style = MaterialTheme.typography.bodySmall,
-                        color = HomeSubtitleColor
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
 

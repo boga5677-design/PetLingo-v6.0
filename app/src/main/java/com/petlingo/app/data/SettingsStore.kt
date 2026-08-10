@@ -14,7 +14,7 @@ data class AppSettings(
     val showExplanation: Boolean = true,
     val addWrongAnswerAutomatically: Boolean = true,
     val dailyGoal: Int = 20,
-    val themeMode: String = "系統",
+    val themeMode: String = "淺色",
     val largeText: Boolean = false,
     val dailyReminder: Boolean = false
 )
@@ -58,7 +58,7 @@ class SettingsStore(context: Context) {
         showExplanation = prefs.getBoolean("showExplanation", true),
         addWrongAnswerAutomatically = prefs.getBoolean("addWrongAnswerAutomatically", true),
         dailyGoal = prefs.getInt("dailyGoal", 20),
-        themeMode = prefs.getString("themeMode", "系統") ?: "系統",
+        themeMode = prefs.getString("themeMode", "淺色") ?: "淺色",
         largeText = prefs.getBoolean("largeText", false),
         dailyReminder = prefs.getBoolean("dailyReminder", false)
     )

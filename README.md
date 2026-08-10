@@ -15,3 +15,8 @@
 - 本機資料統計與清除
 
 所有設定使用Android SharedPreferences保存，學習紀錄仍保存在原本的本機資料庫。
+
+
+## 固定更新簽章（v6.4.5 起）
+
+GitHub Actions 產生的 debug APK 已固定使用 `signing/petlingo-update.jks`。請勿刪除、重新產生或更換此檔，否則 Android 會再次要求解除安裝舊版。此簽章是側載測試／個人使用的更新簽章，不建議拿來發布 Google Play 正式版。
