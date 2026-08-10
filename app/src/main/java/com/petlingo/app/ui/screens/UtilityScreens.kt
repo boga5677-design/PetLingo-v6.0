@@ -1,8 +1,10 @@
 package com.petlingo.app.ui.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -16,9 +18,14 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.petlingo.app.R
 import com.petlingo.app.data.AppSettings
 import com.petlingo.app.model.Word
 
@@ -207,110 +214,90 @@ fun AchievementsScreen(
     answered: Int
 ) {
     val achievements = listOf(
-        AchievementItem(
-            title = "初次挑戰",
-            description = "完成第一份測驗",
-            unlocked = sessionCount >= 1
-        ),
-        AchievementItem(
-            title = "持續進步",
-            description = "完成 5 份測驗",
-            unlocked = sessionCount >= 5
-        ),
-        AchievementItem(
-            title = "今日任務",
-            description = "一天完成 20 題",
-            unlocked = answered >= 20
-        ),
-        AchievementItem(
-            title = "測驗達人",
-            description = "完成 20 份測驗",
-            unlocked = sessionCount >= 20
-        )
+        AchievementItem("初次見面", "完成第一個學習任務", sessionCount >= 1, R.drawable.chihuahua, Color(0xFFE86B52)),
+        AchievementItem("專注學習", "完成 5 次測驗", sessionCount >= 5, R.drawable.tabby, Color(0xFF1684E8)),
+        AchievementItem("持之以恆", "今日完成 20 題", answered >= 20, R.drawable.chihuahua, Color(0xFF5E9D48)),
+        AchievementItem("測驗新手", "完成第一個測驗", sessionCount >= 1, R.drawable.tortoiseshell, Color(0xFF7C4DCE)),
+        AchievementItem("測驗達人", "完成 20 次測驗", sessionCount >= 20, R.drawable.tabby, Color(0xFF1684E8)),
+        AchievementItem("全對高手", "累積完成 30 次測驗", sessionCount >= 30, R.drawable.tortoiseshell, Color(0xFFE34F65)),
+        AchievementItem("速度之星", "累積完成 40 次測驗", sessionCount >= 40, R.drawable.chihuahua, Color(0xFFF39A22)),
+        AchievementItem("聽力專家", "累積完成 50 次測驗", sessionCount >= 50, R.drawable.tabby, Color(0xFF5E9D48)),
+        AchievementItem("口說小能手", "累積完成 60 次測驗", sessionCount >= 60, R.drawable.chihuahua, Color(0xFF1684E8)),
+        AchievementItem("文法達人", "累積完成 70 次測驗", sessionCount >= 70, R.drawable.tabby, Color(0xFFE34F65)),
+        AchievementItem("閱讀高手", "累積完成 80 次測驗", sessionCount >= 80, R.drawable.chihuahua, Color(0xFF7C4DCE)),
+        AchievementItem("筆記達人", "累積完成 90 次測驗", sessionCount >= 90, R.drawable.tortoiseshell, Color(0xFFF39A22)),
+        AchievementItem("完美主義", "累積完成 100 次測驗", sessionCount >= 100, R.drawable.tabby, Color(0xFF5E9D48)),
+        AchievementItem("學習狂人", "累積完成 120 次測驗", sessionCount >= 120, R.drawable.tortoiseshell, Color(0xFF1684E8)),
+        AchievementItem("三毛夥伴", "累積完成 150 次測驗", sessionCount >= 150, R.drawable.chihuahua, Color(0xFF7C4DCE))
     )
 
     LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 18.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         item {
-            Text(
-                text = "成就與獎勵",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold
-            )
-
-            Text(
-                text = "完成學習任務即可解鎖徽章。",
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
+                Surface(shape = RoundedCornerShape(18.dp), color = Color(0xFFFFE6B8)) {
+                    Text("🐾  成就徽章  🐾", modifier = Modifier.padding(horizontal = 28.dp, vertical = 12.dp),
+                        style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Black, color = Color(0xFF4B2F20))
+                }
+                Spacer(Modifier.height(8.dp))
+                Text("和三隻毛孩一起解鎖學習里程碑", color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
         }
 
-        items(achievements) { achievement ->
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(18.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = if (achievement.unlocked) {
-                        MaterialTheme.colorScheme.primaryContainer
-                    } else {
-                        MaterialTheme.colorScheme.surfaceVariant
-                    }
-                )
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        imageVector = if (achievement.unlocked) {
-                            Icons.Default.EmojiEvents
-                        } else {
-                            Icons.Default.Lock
-                        },
-                        contentDescription = null,
-                        tint = if (achievement.unlocked) {
-                            MaterialTheme.colorScheme.primary
-                        } else {
-                            MaterialTheme.colorScheme.onSurfaceVariant
-                        }
-                    )
-
-                    Spacer(
-                        modifier = Modifier.width(12.dp)
-                    )
-
-                    Column {
-                        Text(
-                            text = achievement.title,
-                            fontWeight = FontWeight.Bold
-                        )
-
-                        Text(
-                            text = achievement.description,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-
-                        Text(
-                            text = if (achievement.unlocked) {
-                                "已解鎖"
-                            } else {
-                                "尚未解鎖"
-                            },
-                            style = MaterialTheme.typography.bodySmall,
-                            color = if (achievement.unlocked) {
-                                MaterialTheme.colorScheme.primary
-                            } else {
-                                MaterialTheme.colorScheme.onSurfaceVariant
-                            }
-                        )
-                    }
+        items(achievements.chunked(3)) { rowItems ->
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                rowItems.forEach { achievement ->
+                    AchievementBadge(achievement, Modifier.weight(1f))
                 }
+                repeat(3 - rowItems.size) { Spacer(Modifier.weight(1f)) }
             }
+        }
+    }
+}
+
+@Composable
+private fun AchievementBadge(item: AchievementItem, modifier: Modifier = Modifier) {
+    val alpha = if (item.unlocked) 1f else 0.42f
+    Card(
+        modifier = modifier,
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFFFFBF3))
+    ) {
+        Column(
+            modifier = Modifier.padding(8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(5.dp)
+        ) {
+            Box(contentAlignment = Alignment.TopCenter) {
+                Surface(
+                    modifier = Modifier.size(82.dp),
+                    shape = CircleShape,
+                    color = item.accent.copy(alpha = 0.18f),
+                    border = androidx.compose.foundation.BorderStroke(4.dp, item.accent.copy(alpha = alpha))
+                ) {
+                    Image(
+                        painter = painterResource(item.petRes),
+                        contentDescription = item.title,
+                        modifier = Modifier.fillMaxSize().clip(CircleShape),
+                        contentScale = ContentScale.Crop,
+                        alpha = alpha
+                    )
+                }
+                Text(if (item.unlocked) "⭐" else "🔒", modifier = Modifier.offset(y = (-10).dp))
+            }
+            Surface(shape = RoundedCornerShape(50), color = item.accent.copy(alpha = alpha)) {
+                Text(item.title, modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                    color = Color.White, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.labelLarge)
+            }
+            Text(item.description, style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = alpha),
+                minLines = 2, maxLines = 2)
+            Text(if (item.unlocked) "已解鎖" else "尚未解鎖",
+                style = MaterialTheme.typography.labelSmall,
+                color = if (item.unlocked) item.accent else MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }
@@ -726,5 +713,7 @@ private fun SettingSwitch(
 private data class AchievementItem(
     val title: String,
     val description: String,
-    val unlocked: Boolean
+    val unlocked: Boolean,
+    val petRes: Int,
+    val accent: Color
 )
