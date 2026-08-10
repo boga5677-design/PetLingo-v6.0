@@ -28,18 +28,13 @@ fun ListeningSetupScreen(
 ) {
     var count by remember { mutableIntStateOf(20) }
     var warning by remember { mutableStateOf<String?>(null) }
-
-    var practiceWord by remember(words) {
-        mutableStateOf(words.randomOrNull())
-    }
+    var practiceWord by remember(words) { mutableStateOf(words.randomOrNull()) }
     var revealMeaning by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
     var ttsReady by remember { mutableStateOf(false) }
     val tts = remember {
-        TextToSpeech(context) { status ->
-            ttsReady = status == TextToSpeech.SUCCESS
-        }
+        TextToSpeech(context) { status -> ttsReady = status == TextToSpeech.SUCCESS }
     }
 
     DisposableEffect(tts) {
@@ -49,79 +44,49 @@ fun ListeningSetupScreen(
         }
     }
 
-    fun playPracticeWord() {
+    fun play() {
         val word = practiceWord ?: return
         if (!ttsReady) return
         tts.language = Locale.US
         tts.setSpeechRate(0.88f)
-        tts.speak(
-            word.english,
-            TextToSpeech.QUEUE_FLUSH,
-            null,
-            "petlingo-listening-practice-${word.id}"
-        )
+        tts.speak(word.english, TextToSpeech.QUEUE_FLUSH, null, "listening-practice-${word.id}")
     }
 
-    fun nextPracticeWord() {
+    fun nextWord() {
         if (words.isEmpty()) return
-        val oldId = practiceWord?.id
-        var next = words.randomOrNull()
-        repeat(8) {
-            if (next?.id != oldId || words.size <= 1) return@repeat
-            next = words.randomOrNull()
-        }
-        practiceWord = next
+        val old = practiceWord?.id
+        practiceWord = words.shuffled().firstOrNull { it.id != old } ?: words.randomOrNull()
         revealMeaning = false
     }
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 20.dp, vertical = 16.dp),
+        Modifier.fillMaxSize().padding(horizontal = 20.dp, vertical = 14.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(14.dp)
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         Icon(
             Icons.Default.Headphones,
-            contentDescription = null,
-            modifier = Modifier.size(62.dp),
+            null,
+            modifier = Modifier.size(54.dp),
             tint = MaterialTheme.colorScheme.primary
         )
-
-        Text(
-            "聽力",
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold
-        )
+        Text("聽力", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
 
         Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(22.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer
-            )
+            Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(20.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
         ) {
             Column(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
+                Modifier.fillMaxWidth().padding(14.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(10.dp)
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text(
-                    "聽力練習",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold
-                )
-
-                Text(
-                    "先聽發音，再確認中文意思。",
-                    style = MaterialTheme.typography.bodyMedium,
-                    textAlign = TextAlign.Center
-                )
+                Text("聽力練習", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                Text("先聽發音，再確認中文意思。", textAlign = TextAlign.Center)
 
                 FilledTonalButton(
-                    onClick = ::playPracticeWord,
+                    onClick = ::play,
                     enabled = practiceWord != null,
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -136,11 +101,7 @@ fun ListeningSetupScreen(
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.Black
                     )
-                    Text(
-                        practiceWord?.chinese.orEmpty(),
-                        style = MaterialTheme.typography.titleMedium,
-                        textAlign = TextAlign.Center
-                    )
+                    Text(practiceWord?.chinese.orEmpty(), textAlign = TextAlign.Center)
                 } else {
                     OutlinedButton(
                         onClick = { revealMeaning = true },
@@ -154,7 +115,7 @@ fun ListeningSetupScreen(
                 }
 
                 OutlinedButton(
-                    onClick = ::nextPracticeWord,
+                    onClick = ::nextWord,
                     enabled = words.isNotEmpty(),
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -165,17 +126,9 @@ fun ListeningSetupScreen(
             }
         }
 
-        HorizontalDivider()
-
         Text(
             "聽力測驗",
             style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Text(
-            "題數",
             fontWeight = FontWeight.Bold,
             modifier = Modifier.fillMaxWidth()
         )
@@ -194,24 +147,14 @@ fun ListeningSetupScreen(
             }
         }
 
-        warning?.let {
-            Text(
-                it,
-                color = MaterialTheme.colorScheme.error
-            )
-        }
+        warning?.let { Text(it, color = MaterialTheme.colorScheme.error) }
 
         Button(
             onClick = {
-                if (onStart(count, QuizMode.LISTENING)) {
-                    onReady()
-                } else {
-                    warning = "題庫不足，無法建立聽力測驗。"
-                }
+                if (onStart(count, QuizMode.LISTENING)) onReady()
+                else warning = "題庫不足，無法建立聽力測驗。"
             },
-            modifier = Modifier
-                .fillMaxWidth()
-                .heightIn(min = 54.dp)
+            modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp)
         ) {
             Text("開始聽力測驗")
         }

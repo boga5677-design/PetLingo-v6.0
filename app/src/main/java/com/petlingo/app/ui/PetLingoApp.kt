@@ -33,6 +33,7 @@ import com.petlingo.app.ui.screens.FavoritesScreen
 import com.petlingo.app.ui.screens.HistoryScreen
 import com.petlingo.app.ui.screens.HomeScreen
 import com.petlingo.app.ui.screens.ListeningSetupScreen
+import com.petlingo.app.ui.screens.NotesScreen
 import com.petlingo.app.ui.screens.PhraseScreen
 import com.petlingo.app.ui.screens.QuizScreen
 import com.petlingo.app.ui.screens.QuizSetupScreen
@@ -63,6 +64,8 @@ fun PetLingoApp(
     val wrongAnswers by vm.wrongAnswers.collectAsState()
     val speakingRecords by vm.speakingRecords.collectAsState()
     val appSettings by settingsStore.settings.collectAsState()
+    val notes by vm.notes.collectAsState()
+    val noteKeys = remember(notes) { notes.map { it.key }.toSet() }
 
     val startOfToday = remember {
         Calendar.getInstance().apply {
@@ -210,6 +213,9 @@ fun PetLingoApp(
                     onAchievements = {
                         navController.navigate("achievements")
                     },
+                    onNotes = {
+                        navController.navigate("notes")
+                    },
                     onSettings = {
                         navController.navigate("settings")
                     }
@@ -221,8 +227,10 @@ fun PetLingoApp(
                     words = vm.filteredWords(),
                     query = query,
                     favorites = favorites,
+                    noteKeys = noteKeys,
                     onQueryChange = vm::setQuery,
-                    onToggleFavorite = vm::toggleFavorite
+                    onToggleFavorite = vm::toggleFavorite,
+                    onToggleNote = vm::toggleNote
                 )
             }
 
@@ -257,6 +265,8 @@ fun PetLingoApp(
                     question = questions.getOrNull(currentIndex),
                     index = currentIndex,
                     total = questions.size,
+                    noteKeys = noteKeys,
+                    onToggleNote = vm::toggleNote,
                     onSelect = vm::select,
                     onSubmit = vm::submit,
                     onNext = vm::next,
@@ -377,10 +387,26 @@ fun PetLingoApp(
                 )
             }
 
+            composable("notes") {
+                NotesScreen(
+                    notes = notes,
+                    onBack = { navController.popBackStack() },
+                    onRemove = vm::removeNote,
+                    onClear = vm::clearNotes
+                )
+            }
+
             composable("settings") {
                 SettingsScreen(
                     settings = appSettings,
-                    onUpdate = settingsStore::update
+                    onUpdate = settingsStore::update,
+                    onBack = {
+                        if (!navController.popBackStack()) {
+                            navController.navigate("home") {
+                                launchSingleTop = true
+                            }
+                        }
+                    }
                 )
             }
         }

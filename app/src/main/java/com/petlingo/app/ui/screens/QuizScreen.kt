@@ -12,6 +12,8 @@ import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Headphones
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -25,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import com.petlingo.app.model.AnswerRecord
 import com.petlingo.app.model.QuestionType
 import com.petlingo.app.model.QuizQuestion
+import com.petlingo.app.model.StudyNote
 import com.petlingo.app.util.AnalyticsCalculator
 import java.util.Locale
 
@@ -33,6 +36,8 @@ fun QuizScreen(
     question: QuizQuestion?,
     index: Int,
     total: Int,
+    noteKeys: Set<String>,
+    onToggleNote: (StudyNote) -> Unit,
     onSelect: (Int) -> Unit,
     onSubmit: (Int) -> AnswerRecord?,
     onNext: () -> Boolean,
@@ -44,9 +49,7 @@ fun QuizScreen(
     val context = LocalContext.current
     var ttsReady by remember { mutableStateOf(false) }
     val tts = remember {
-        TextToSpeech(context) { status ->
-            ttsReady = status == TextToSpeech.SUCCESS
-        }
+        TextToSpeech(context) { status -> ttsReady = status == TextToSpeech.SUCCESS }
     }
 
     DisposableEffect(tts) {
@@ -69,9 +72,7 @@ fun QuizScreen(
     }
 
     LaunchedEffect(question?.id, ttsReady) {
-        if (question?.type == QuestionType.LISTENING && ttsReady) {
-            speak()
-        }
+        if (question?.type == QuestionType.LISTENING && ttsReady) speak()
     }
 
     if (question == null) {
@@ -81,47 +82,63 @@ fun QuizScreen(
         return
     }
 
+    val category = questionCategory(question.type)
+    val questionKey = "quiz-question-${question.type.name}-${question.prompt.hashCode()}"
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .padding(horizontal = 16.dp, vertical = 10.dp)
+            .padding(horizontal = 14.dp, vertical = 8.dp)
     ) {
         Row(
             Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                "第 ${index + 1} / $total 題",
-                fontWeight = FontWeight.Bold
-            )
+            Text("第 ${index + 1} / $total 題", fontWeight = FontWeight.Bold)
             Spacer(Modifier.weight(1f))
-            Text(
-                "❤️ 20",
-                color = Color(0xFFE64A3B),
-                fontWeight = FontWeight.Bold
-            )
-        }
 
-        Spacer(Modifier.height(6.dp))
+            IconButton(
+                onClick = {
+                    onToggleNote(
+                        StudyNote(
+                            key = questionKey,
+                            category = category,
+                            kind = "題目",
+                            title = question.prompt,
+                            content = "正確答案：${question.options.getOrNull(question.correctIndex).orEmpty()}",
+                            detail = question.explanation
+                        )
+                    )
+                }
+            ) {
+                Icon(
+                    if (questionKey in noteKeys) Icons.Default.Star else Icons.Default.StarBorder,
+                    if (questionKey in noteKeys) "取消題目筆記" else "加入題目筆記",
+                    tint = if (questionKey in noteKeys) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    }
+                )
+            }
+
+            Text("❤️ 20", color = Color(0xFFE64A3B), fontWeight = FontWeight.Bold)
+        }
 
         LinearProgressIndicator(
             progress = { if (total == 0) 0f else (index + 1f) / total },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(5.dp)
+            modifier = Modifier.fillMaxWidth().height(5.dp)
         )
 
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(6.dp))
 
-        // Only this middle area scrolls when a long reading/cloze question needs it.
-        // The next button below always stays visible.
         Column(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(7.dp)
         ) {
             if (question.type == QuestionType.LISTENING) {
                 Icon(
@@ -129,15 +146,14 @@ fun QuizScreen(
                     contentDescription = null,
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally)
-                        .size(48.dp),
+                        .size(44.dp),
                     tint = MaterialTheme.colorScheme.primary
                 )
-
                 FilledTonalButton(
                     onClick = ::speak,
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally)
-                        .heightIn(min = 46.dp)
+                        .heightIn(min = 44.dp)
                 ) {
                     Icon(Icons.Default.VolumeUp, null)
                     Spacer(Modifier.width(6.dp))
@@ -151,18 +167,13 @@ fun QuizScreen(
                     fontWeight = FontWeight.Black,
                     textAlign = TextAlign.Center
                 )
-
                 IconButton(
                     onClick = ::speak,
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally)
-                        .size(40.dp)
+                        .size(36.dp)
                 ) {
-                    Icon(
-                        Icons.Default.VolumeUp,
-                        contentDescription = "播放發音",
-                        tint = Color(0xFF1684E8)
-                    )
+                    Icon(Icons.Default.VolumeUp, "播放發音", tint = Color(0xFF1684E8))
                 }
             }
 
@@ -170,13 +181,13 @@ fun QuizScreen(
                 val submitted = result != null
                 val correct = optionIndex == question.correctIndex
                 val chosen = selected == optionIndex
+                val optionKey = "quiz-option-${question.type.name}-${question.prompt.hashCode()}-${option.hashCode()}"
 
                 val background = when {
                     submitted && correct -> Color(0xFF6FA968)
                     submitted && chosen && !correct -> Color(0xFFF05045)
                     else -> Color.Transparent
                 }
-
                 val foreground = if (submitted && (correct || chosen)) {
                     Color.White
                 } else {
@@ -184,33 +195,32 @@ fun QuizScreen(
                 }
 
                 Surface(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable(enabled = !submitted) {
-                            selected = optionIndex
-                            onSelect(optionIndex)
-                            result = onSubmit(optionIndex)
-                        },
-                    shape = RoundedCornerShape(20.dp),
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(18.dp),
                     color = background,
                     border = if (!submitted || (!correct && !chosen)) {
                         ButtonDefaults.outlinedButtonBorder
-                    } else {
-                        null
-                    }
+                    } else null
                 ) {
                     Row(
-                        Modifier.padding(horizontal = 14.dp, vertical = 11.dp),
+                        Modifier
+                            .fillMaxWidth()
+                            .clickable(enabled = !submitted) {
+                                selected = optionIndex
+                                onSelect(optionIndex)
+                                result = onSubmit(optionIndex)
+                            }
+                            .padding(start = 12.dp, end = 4.dp, top = 8.dp, bottom = 8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         if (submitted && (correct || chosen)) {
                             Icon(
                                 if (correct) Icons.Default.CheckCircle else Icons.Default.Close,
-                                contentDescription = null,
+                                null,
                                 tint = Color.White,
-                                modifier = Modifier.size(22.dp)
+                                modifier = Modifier.size(20.dp)
                             )
-                            Spacer(Modifier.width(7.dp))
+                            Spacer(Modifier.width(6.dp))
                         }
 
                         Text(
@@ -220,6 +230,37 @@ fun QuizScreen(
                             textAlign = TextAlign.Center,
                             style = MaterialTheme.typography.bodyLarge
                         )
+
+                        IconButton(
+                            onClick = {
+                                onToggleNote(
+                                    StudyNote(
+                                        key = optionKey,
+                                        category = category,
+                                        kind = "題目選項",
+                                        title = question.prompt,
+                                        content = option,
+                                        detail = if (correct) {
+                                            "此選項為正確答案。${question.explanation}"
+                                        } else {
+                                            "此選項不是正確答案。${question.explanation}"
+                                        }
+                                    )
+                                )
+                            }
+                        ) {
+                            Icon(
+                                if (optionKey in noteKeys) Icons.Default.Star else Icons.Default.StarBorder,
+                                if (optionKey in noteKeys) "取消選項筆記" else "加入選項筆記",
+                                tint = if (optionKey in noteKeys) {
+                                    if (submitted && (correct || chosen)) Color.White
+                                    else MaterialTheme.colorScheme.primary
+                                } else {
+                                    if (submitted && (correct || chosen)) Color.White
+                                    else MaterialTheme.colorScheme.onSurfaceVariant
+                                }
+                            )
+                        }
                     }
                 }
             }
@@ -227,45 +268,19 @@ fun QuizScreen(
             result?.let { answer ->
                 Card(
                     colors = CardDefaults.cardColors(
-                        containerColor = if (answer.isCorrect) {
-                            Color(0xFFE5F3DF)
-                        } else {
-                            Color(0xFFFFE3DF)
-                        }
+                        containerColor = if (answer.isCorrect) Color(0xFFE5F3DF) else Color(0xFFFFE3DF)
                     ),
-                    shape = RoundedCornerShape(16.dp)
+                    shape = RoundedCornerShape(14.dp)
                 ) {
                     Column(
-                        Modifier.padding(12.dp),
+                        Modifier.padding(10.dp),
                         verticalArrangement = Arrangement.spacedBy(3.dp)
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                if (answer.isCorrect) {
-                                    Icons.Default.CheckCircle
-                                } else {
-                                    Icons.Default.Close
-                                },
-                                contentDescription = null,
-                                tint = if (answer.isCorrect) {
-                                    Color(0xFF4B9254)
-                                } else {
-                                    Color(0xFFD84B40)
-                                },
-                                modifier = Modifier.size(21.dp)
-                            )
-                            Spacer(Modifier.width(6.dp))
-                            Text(
-                                if (answer.isCorrect) "答對了！" else "不正確",
-                                fontWeight = FontWeight.Bold,
-                                color = if (answer.isCorrect) {
-                                    Color(0xFF3D7D46)
-                                } else {
-                                    Color(0xFFD84B40)
-                                }
-                            )
-                        }
-
+                        Text(
+                            if (answer.isCorrect) "答對了！" else "不正確",
+                            fontWeight = FontWeight.Bold,
+                            color = if (answer.isCorrect) Color(0xFF3D7D46) else Color(0xFFD84B40)
+                        )
                         if (!answer.isCorrect) {
                             Text(
                                 "正確答案：${answer.correctAnswer}",
@@ -273,14 +288,9 @@ fun QuizScreen(
                                 style = MaterialTheme.typography.bodySmall
                             )
                         }
-
                         if (question.explanation.isNotBlank()) {
-                            Text(
-                                question.explanation,
-                                style = MaterialTheme.typography.bodySmall
-                            )
+                            Text(question.explanation, style = MaterialTheme.typography.bodySmall)
                         }
-
                         Text(
                             "作答時間：${AnalyticsCalculator.seconds(answer.elapsedMillis)}",
                             style = MaterialTheme.typography.labelSmall
@@ -289,29 +299,22 @@ fun QuizScreen(
                 }
             }
 
-            Spacer(Modifier.height(4.dp))
+            Spacer(Modifier.height(2.dp))
         }
 
-        // Fixed action area: no need to scroll to reach the next button.
         if (result != null) {
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(6.dp))
             Button(
                 onClick = {
-                    if (!onNext()) {
-                        onFinished()
-                    }
+                    if (!onNext()) onFinished()
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(min = 52.dp),
-                shape = RoundedCornerShape(16.dp)
+                    .heightIn(min = 50.dp),
+                shape = RoundedCornerShape(14.dp)
             ) {
                 Text(
-                    if (index + 1 >= total) {
-                        "完成並查看結果"
-                    } else {
-                        "下一題"
-                    },
+                    if (index + 1 >= total) "完成並查看結果" else "下一題",
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(Modifier.width(8.dp))
@@ -319,4 +322,13 @@ fun QuizScreen(
             }
         }
     }
+}
+
+private fun questionCategory(type: QuestionType): String = when (type) {
+    QuestionType.VOCABULARY -> "單字測驗"
+    QuestionType.PHRASE -> "片語測驗"
+    QuestionType.GRAMMAR -> "文法測驗"
+    QuestionType.CLOZE -> "克漏字"
+    QuestionType.READING -> "閱讀測驗"
+    QuestionType.LISTENING -> "聽力測驗"
 }

@@ -10,6 +10,7 @@ import com.petlingo.app.data.ReadingStore
 import com.petlingo.app.data.StudyStore
 import com.petlingo.app.data.SpeakingStore
 import com.petlingo.app.data.SettingsStore
+import com.petlingo.app.data.NoteStore
 import com.petlingo.app.data.WordRepository
 import com.petlingo.app.data.WrongAnswerStore
 import com.petlingo.app.model.AnswerRecord
@@ -21,6 +22,7 @@ import com.petlingo.app.model.ReadingSession
 import com.petlingo.app.model.Word
 import com.petlingo.app.model.SpeakingRecord
 import com.petlingo.app.model.WrongAnswer
+import com.petlingo.app.model.StudyNote
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -33,6 +35,7 @@ class PetLingoViewModel(app: Application) : AndroidViewModel(app) {
     private val wrongStore = WrongAnswerStore(app)
     private val speakingStore = SpeakingStore(app)
     private val settingsStore = SettingsStore(app)
+    private val noteStore = NoteStore(app)
     val phrases = PhraseRepository().phrases()
     val readingPassages: List<ReadingPassage> = ReadingRepository().passages()
 
@@ -58,6 +61,9 @@ class PetLingoViewModel(app: Application) : AndroidViewModel(app) {
     val speakingRecords: StateFlow<List<SpeakingRecord>> = _speakingRecords
     private val _query = MutableStateFlow("")
     val query: StateFlow<String> = _query
+    private val _notes = MutableStateFlow(noteStore.load())
+    val notes: StateFlow<List<StudyNote>> = _notes
+
 
     private var currentMode = QuizMode.ENGLISH_TO_CHINESE
     private var quizStartedAt = 0L
@@ -203,6 +209,21 @@ class PetLingoViewModel(app: Application) : AndroidViewModel(app) {
         speakingStore.clear()
         _speakingRecords.value = emptyList()
     }
+
+
+fun toggleNote(note: StudyNote) {
+    _notes.value = noteStore.toggle(note)
+}
+
+fun removeNote(key: String) {
+    _notes.value = noteStore.remove(key)
+}
+
+fun clearNotes() {
+    _notes.value = noteStore.clear()
+}
+
+fun isNoted(key: String): Boolean = _notes.value.any { it.key == key }
 
     fun clearHistory() {
         store.clear()

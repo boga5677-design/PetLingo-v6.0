@@ -138,3 +138,14 @@ data class SpeakingRecord(
     val accent: String,
     val createdAt: Long = System.currentTimeMillis()
 )
+
+
+data class StudyNote(
+    val key: String,
+    val category: String,
+    val kind: String,
+    val title: String,
+    val content: String,
+    val detail: String = "",
+    val createdAt: Long = System.currentTimeMillis()
+)

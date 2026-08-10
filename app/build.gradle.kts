@@ -12,8 +12,8 @@ android {
         applicationId = "com.petlingo.learning"
         minSdk = 26
         targetSdk = 35
-        versionCode = 25
-        versionName = "6.4.1"
+        versionCode = 26
+        versionName = "6.4.2-notes"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true

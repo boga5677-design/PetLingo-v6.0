@@ -48,6 +48,7 @@ fun HomeScreen(
     onFavorites: () -> Unit,
     onDailyMission: () -> Unit,
     onAchievements: () -> Unit,
+    onNotes: () -> Unit,
     onSettings: () -> Unit
 ) {
     val progress = todayAnswered.coerceIn(0, 20)
@@ -303,6 +304,14 @@ fun HomeScreen(
                     subtitle = "挑戰 20 題",
                     icon = Icons.Default.Today,
                     action = onDailyMission,
+                    modifier = Modifier.weight(1f)
+                )
+
+                ToolCard(
+                    title = "我的筆記",
+                    subtitle = "★ 題目・單字",
+                    icon = Icons.Default.Star,
+                    action = onNotes,
                     modifier = Modifier.weight(1f)
                 )
 

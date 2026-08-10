@@ -22,21 +22,17 @@ import com.petlingo.app.model.QuizSession
 import com.petlingo.app.util.AnalyticsCalculator
 
 @Composable
-fun ResultScreen(
-    session: QuizSession?,
-    onAnalytics: () -> Unit,
-    onHome: () -> Unit
-) {
+fun ResultScreen(session: QuizSession?, onAnalytics: () -> Unit, onHome: () -> Unit) {
     Column(Modifier.fillMaxSize()) {
         LazyColumn(
-            modifier = Modifier.weight(1f),
-            contentPadding = PaddingValues(horizontal = 20.dp, vertical = 14.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            Modifier.weight(1f),
+            contentPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             item {
                 Text(
                     "本次測驗完成",
-                    modifier = Modifier.fillMaxWidth(),
+                    Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Black
@@ -45,31 +41,24 @@ fun ResultScreen(
 
             item {
                 Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(24.dp),
+                    Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(22.dp),
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.primaryContainer
                     )
                 ) {
                     Column(
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(10.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                        Modifier.fillMaxWidth().padding(8.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Image(
-                            painter = painterResource(R.drawable.petlingo_hero),
-                            contentDescription = "黑糖、偶貴與熊熊替你加油",
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .heightIn(max = 180.dp),
+                            painter = painterResource(com.petlingo.app.R.drawable.petlingo_hero),
+                            contentDescription = "可愛寵物替你加油",
+                            modifier = Modifier.fillMaxWidth().heightIn(max = 170.dp),
                             contentScale = ContentScale.Fit
                         )
-
                         Text(
                             encouragement(session?.score ?: 0),
-                            style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             textAlign = TextAlign.Center
                         )
@@ -78,58 +67,29 @@ fun ResultScreen(
             }
 
             if (session == null) {
-                item {
-                    Text("尚無測驗資料")
-                }
+                item { Text("尚無測驗資料") }
             } else {
                 item {
                     Row(
                         Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
-                        ScoreBlock(
-                            "${session.correctCount}/${session.questionCount}",
-                            "答對題數"
-                        )
-                        ScoreBlock(
-                            "${session.score} 分",
-                            "本次分數"
-                        )
+                        ScoreBlock("${session.correctCount}/${session.questionCount}", "答對題數")
+                        ScoreBlock("${session.score} 分", "本次分數")
                     }
                 }
 
                 item {
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(18.dp)
-                    ) {
-                        Column(
-                            Modifier.padding(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            ResultLine(
-                                "總作答時間",
-                                AnalyticsCalculator.totalTime(session.totalMillis)
-                            )
+                    Card {
+                        Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                            ResultLine("總作答時間", AnalyticsCalculator.totalTime(session.totalMillis))
                             ResultLine(
                                 "平均每題時間",
-                                AnalyticsCalculator.seconds(
-                                    AnalyticsCalculator.averageMillis(session.answers)
-                                )
+                                AnalyticsCalculator.seconds(AnalyticsCalculator.averageMillis(session.answers))
                             )
-                            ResultLine(
-                                "修改答案",
-                                "${AnalyticsCalculator.changedCount(session)} 題"
-                            )
+                            ResultLine("修改答案", "${AnalyticsCalculator.changedCount(session)} 題")
                         }
                     }
-                }
-
-                item {
-                    Text(
-                        "本次成績獨立保存，不與其他測驗計算平均。",
-                        style = MaterialTheme.typography.bodySmall
-                    )
                 }
 
                 itemsIndexed(session.answers) { index, answer ->
@@ -143,24 +103,15 @@ fun ResultScreen(
 
         Surface(shadowElevation = 8.dp) {
             Column(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(12.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                Modifier.fillMaxWidth().padding(10.dp),
+                verticalArrangement = Arrangement.spacedBy(7.dp)
             ) {
-                Button(
-                    onClick = onHome,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
+                Button(onClick = onHome, modifier = Modifier.fillMaxWidth()) {
                     Icon(Icons.Default.Home, null)
                     Spacer(Modifier.width(8.dp))
                     Text("返回主選單")
                 }
-
-                OutlinedButton(
-                    onClick = onAnalytics,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
+                OutlinedButton(onClick = onAnalytics, modifier = Modifier.fillMaxWidth()) {
                     Icon(Icons.Default.Analytics, null)
                     Spacer(Modifier.width(8.dp))
                     Text("查看本次答題分析")
@@ -171,38 +122,23 @@ fun ResultScreen(
 }
 
 @Composable
-private fun ScoreBlock(
-    value: String,
-    label: String
-) {
+private fun ScoreBlock(value: String, label: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(
-            value,
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Black
-        )
-        Text(
-            label,
-            style = MaterialTheme.typography.bodySmall
-        )
+        Text(value, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Black)
+        Text(label, style = MaterialTheme.typography.bodySmall)
     }
 }
 
-private fun encouragement(score: Int): String {
-    return when {
-        score >= 90 -> "黑糖、偶貴、熊熊：太厲害了！今天表現超棒！ 🎉"
-        score >= 70 -> "三隻毛孩幫你加油：再複習一下就更強了！ 🐾"
-        score >= 50 -> "有進步就是好事！一起把錯題再練一次吧！ 💪"
-        else -> "別急，黑糖、偶貴、熊熊陪你慢慢練習！ 🌟"
-    }
+private fun encouragement(score: Int): String = when {
+    score >= 90 -> "太厲害了！黑糖、偶貴、熊熊都替你開心！ 🎉"
+    score >= 70 -> "表現很不錯，再複習一下就更強了！ 🐾"
+    score >= 50 -> "有進步就是好事，一起把錯題再練一次！ 💪"
+    else -> "黑糖、偶貴、熊熊陪你慢慢練習！ 🌟"
 }
 
 @Composable
 private fun ResultLine(label: String, value: String) {
-    Row(
-        Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
         Text(label)
         Text(value, fontWeight = FontWeight.Bold)
     }
