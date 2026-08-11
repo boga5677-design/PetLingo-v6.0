@@ -30,14 +30,21 @@ fun VocabularyScreen(
 ) {
     var selectedLevel by remember { mutableStateOf("全部") }
     val shown = remember(words, selectedLevel) {
-        if (selectedLevel == "全部") words else words.filter { it.level == selectedLevel }
+        when {
+            selectedLevel == "全部" -> words
+            selectedLevel.startsWith("高中") -> {
+                val ceec = selectedLevel.removePrefix("高中").removeSuffix("級")
+                words.filter { it.ceecLevel == ceec }
+            }
+            else -> words.filter { it.level == selectedLevel }
+        }
     }
 
     Column(
         Modifier.fillMaxSize().padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        Text("GEPT 單字庫", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+        Text("英文單字庫", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
         Text("共 ${shown.size} 筆符合結果・已收藏 ${favorites.size} 個")
         OutlinedTextField(
             value = query,
@@ -47,7 +54,7 @@ fun VocabularyScreen(
             singleLine = true
         )
         LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            items(listOf("全部", "初級", "中級", "中高級")) { level ->
+            items(listOf("全部", "初級", "中級", "中高級", "高中1級", "高中2級", "高中3級", "高中4級", "高中5級", "高中6級")) { level ->
                 FilterChip(
                     selected = selectedLevel == level,
                     onClick = { selectedLevel = level },
@@ -79,6 +86,7 @@ fun VocabularyScreen(
                             Text(
                                 buildString {
                                     append(word.level)
+                                    if (word.ceecLevel.isNotBlank()) append("・高中 ${word.ceecLevel} 級")
                                     if (word.academic.isNotBlank()) append("・學術字彙 ${word.academic}")
                                 },
                                 style = MaterialTheme.typography.labelSmall,
@@ -106,6 +114,7 @@ fun VocabularyScreen(
                                             detail = listOf(
                                                 word.partOfSpeech,
                                                 word.level,
+                                                if (word.ceecLevel.isNotBlank()) "高中 ${word.ceecLevel} 級" else "",
                                                 word.note
                                             ).filter { it.isNotBlank() }.joinToString("・")
                                         )

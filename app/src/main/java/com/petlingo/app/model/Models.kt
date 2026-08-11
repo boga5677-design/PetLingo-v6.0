@@ -7,7 +7,8 @@ data class Word(
     val partOfSpeech: String = "",
     val note: String = "",
     val level: String = "",
-    val academic: String = ""
+    val academic: String = "",
+    val ceecLevel: String = ""
 )
 
 data class Phrase(

@@ -16,7 +16,8 @@ class WordRepository(private val context: Context) {
                     partOfSpeech = p[3].trim(),
                     note = p[4].trim(),
                     level = p[5].trim(),
-                    academic = p[6].trim()
+                    academic = p[6].trim(),
+                    ceecLevel = p.getOrNull(7)?.trim().orEmpty()
                 )
             }.filter { it.english.isNotBlank() && it.chinese.isNotBlank() }
                 .take(limit)
