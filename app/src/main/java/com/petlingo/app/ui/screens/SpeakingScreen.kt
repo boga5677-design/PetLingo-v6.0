@@ -139,31 +139,60 @@ fun SpeakingScreen(
                         FilterChip(selected = accent == "美式", onClick = { accent = "美式" }, label = { Text("美式") })
                         FilterChip(selected = accent == "英式", onClick = { accent = "英式" }, label = { Text("英式") })
                     }
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Row(
+                        Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
                         Button(
                             onClick = {
                                 if (target.isNotBlank() && ttsReady) {
-                                    tts.speak(target, TextToSpeech.QUEUE_FLUSH, null, "petlingo-demo")
-                                } else status = "語音示範尚未準備完成。"
+                                    tts.language = Locale.US
+                                    tts.setSpeechRate(0.88f)
+                                    tts.speak(target, TextToSpeech.QUEUE_FLUSH, null, "petlingo-demo-us")
+                                    accent = "美式"
+                                } else {
+                                    status = "語音示範尚未準備完成。"
+                                }
                             },
                             modifier = Modifier.weight(1f)
                         ) {
                             Icon(Icons.Default.VolumeUp, null)
-                            Text("示範")
+                            Spacer(Modifier.width(4.dp))
+                            Text("美式")
                         }
-                        Button(
+
+                        OutlinedButton(
                             onClick = {
-                                if (ContextCompat.checkSelfPermission(
-                                        context, Manifest.permission.RECORD_AUDIO
-                                    ) == PackageManager.PERMISSION_GRANTED
-                                ) startRecognition()
-                                else permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                                if (target.isNotBlank() && ttsReady) {
+                                    tts.language = Locale.UK
+                                    tts.setSpeechRate(0.88f)
+                                    tts.speak(target, TextToSpeech.QUEUE_FLUSH, null, "petlingo-demo-uk")
+                                    accent = "英式"
+                                } else {
+                                    status = "語音示範尚未準備完成。"
+                                }
                             },
                             modifier = Modifier.weight(1f)
                         ) {
-                            Icon(Icons.Default.Mic, null)
-                            Text("跟讀")
+                            Icon(Icons.Default.VolumeUp, null)
+                            Spacer(Modifier.width(4.dp))
+                            Text("英式")
                         }
+                    }
+
+                    Button(
+                        onClick = {
+                            if (ContextCompat.checkSelfPermission(
+                                    context, Manifest.permission.RECORD_AUDIO
+                                ) == PackageManager.PERMISSION_GRANTED
+                            ) startRecognition()
+                            else permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Icon(Icons.Default.Mic, null)
+                        Spacer(Modifier.width(6.dp))
+                        Text("跟讀")
                     }
                     OutlinedButton(onClick = ::nextPrompt, modifier = Modifier.fillMaxWidth()) {
                         Icon(Icons.Default.Shuffle, null)

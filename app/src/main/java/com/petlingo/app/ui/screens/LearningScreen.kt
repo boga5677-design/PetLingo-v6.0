@@ -7,6 +7,7 @@ import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.Headphones
 import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material.icons.filled.RecordVoiceOver
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -19,19 +20,21 @@ fun LearningScreen(
     onVocabulary: () -> Unit,
     onPhrase: () -> Unit,
     onListeningPractice: () -> Unit,
-    onSpeakingPractice: () -> Unit
+    onSpeakingPractice: () -> Unit,
+    onPronunciationInput: () -> Unit
 ) {
     Column(
         Modifier.fillMaxSize().padding(18.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         Text("學習", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
-        Text("單字、片語、聽力與口說練習集中在這裡。")
+        Text("所有學習功能都支援美式與英式英文發音。")
 
-        LearningCard("GEPT 單字學習", "初級・中級・中高級", Icons.Default.MenuBook, onVocabulary)
-        LearningCard("片語學習", "常用片語與例句", Icons.Default.Chat, onPhrase)
-        LearningCard("聽力練習", "聽單字發音，再確認中文意思", Icons.Default.Headphones, onListeningPractice)
-        LearningCard("口說練習", "單字與片語隨機跟讀練習", Icons.Default.Mic, onSpeakingPractice)
+        LearningCard("英文單字學習", "每個單字皆有美式／英式發音", Icons.Default.MenuBook, onVocabulary)
+        LearningCard("片語學習", "片語與例句皆有美式／英式發音", Icons.Default.Chat, onPhrase)
+        LearningCard("聽力練習", "同一單字比較美式／英式發音", Icons.Default.Headphones, onListeningPractice)
+        LearningCard("口說練習", "可切換美式／英式示範後跟讀", Icons.Default.Mic, onSpeakingPractice)
+        LearningCard("英文自由朗讀", "輸入任意英文，播放美式／英式發音", Icons.Default.RecordVoiceOver, onPronunciationInput)
     }
 }
 

@@ -38,6 +38,7 @@ import com.petlingo.app.ui.screens.ListeningPracticeScreen
 import com.petlingo.app.ui.screens.LearningScreen
 import com.petlingo.app.ui.screens.NotesScreen
 import com.petlingo.app.ui.screens.PhraseScreen
+import com.petlingo.app.ui.screens.PronunciationInputScreen
 import com.petlingo.app.ui.screens.QuizScreen
 import com.petlingo.app.ui.screens.QuizSetupScreen
 import com.petlingo.app.ui.screens.ReadingDetailScreen
@@ -231,8 +232,13 @@ fun PetLingoApp(
                     onVocabulary = { navController.navigate("vocabulary") },
                     onPhrase = { navController.navigate("phrases") },
                     onListeningPractice = { navController.navigate("listeningPractice") },
-                    onSpeakingPractice = { navController.navigate("speakingPractice") }
+                    onSpeakingPractice = { navController.navigate("speakingPractice") },
+                    onPronunciationInput = { navController.navigate("pronunciationInput") }
                 )
+            }
+
+            composable("pronunciationInput") {
+                PronunciationInputScreen()
             }
 
             composable("listeningPractice") {

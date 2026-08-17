@@ -1,0 +1,16 @@
+實際上傳專案原本版本是 6.4.6: True
+單字庫有美式發音按鈕: True
+單字庫有英式發音按鈕: True
+單字庫使用 Locale.US: True
+單字庫使用 Locale.UK: True
+片語有美式英式: True
+聽力練習有美式英式: True
+口說有美式英式按鈕: True
+自由朗讀頁已建立: True
+自由朗讀路由已接上: True
+學習頁已接自由朗讀: True
+CI 會檢查發音按鈕: True
+APK artifact 名稱已改: True
+applicationId 保持不變: True
+固定 JKS 保留: True
+版本 6.5.1: True

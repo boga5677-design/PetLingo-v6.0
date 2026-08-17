@@ -19,32 +19,108 @@ import java.util.Locale
 fun PhraseScreen(phrases: List<Phrase>) {
     val context = LocalContext.current
     var query by remember { mutableStateOf("") }
-    var tts by remember { mutableStateOf<TextToSpeech?>(null) }
-    DisposableEffect(Unit) {
-        val engine = TextToSpeech(context) { if (it == TextToSpeech.SUCCESS) Unit }
-        tts = engine
-        onDispose { engine.stop(); engine.shutdown() }
+    var ttsReady by remember { mutableStateOf(false) }
+    val tts = remember {
+        TextToSpeech(context) { ttsReady = it == TextToSpeech.SUCCESS }
     }
+
+    DisposableEffect(tts) {
+        onDispose {
+            tts.stop()
+            tts.shutdown()
+        }
+    }
+
+    fun speak(text: String, locale: Locale, id: String) {
+        if (!ttsReady || text.isBlank()) return
+        tts.language = locale
+        tts.setSpeechRate(0.88f)
+        tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, id)
+    }
+
     val shown = remember(query, phrases) {
-        if (query.isBlank()) phrases else phrases.filter { it.english.contains(query, true) || it.chinese.contains(query) }
+        if (query.isBlank()) phrases
+        else phrases.filter {
+            it.english.contains(query, true) || it.chinese.contains(query)
+        }
     }
-    Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+
+    Column(
+        Modifier.fillMaxSize().padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
         Text("多益片語", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
         Text("常用商務、旅遊與職場片語，共 ${phrases.size} 組")
-        OutlinedTextField(query, { query = it }, Modifier.fillMaxWidth(), label = { Text("搜尋片語或中文") }, singleLine = true)
+
+        OutlinedTextField(
+            query,
+            { query = it },
+            Modifier.fillMaxWidth(),
+            label = { Text("搜尋片語或中文") },
+            singleLine = true
+        )
+
         LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp)) {
             items(shown, key = { it.id }) { phrase ->
                 Card(Modifier.fillMaxWidth()) {
-                    Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text(phrase.english, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                            IconButton(onClick = { tts?.language = Locale.US; tts?.speak(phrase.english, TextToSpeech.QUEUE_FLUSH, null, "phrase-${phrase.id}") }) {
-                                Icon(Icons.Default.VolumeUp, contentDescription = "播放發音")
+                    Column(
+                        Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            phrase.english,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+
+                        Row(
+                            Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Button(
+                                onClick = { speak(phrase.english, Locale.US, "phrase-us-${phrase.id}") },
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Icon(Icons.Default.VolumeUp, null)
+                                Spacer(Modifier.width(4.dp))
+                                Text("美式")
+                            }
+
+                            OutlinedButton(
+                                onClick = { speak(phrase.english, Locale.UK, "phrase-uk-${phrase.id}") },
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Icon(Icons.Default.VolumeUp, null)
+                                Spacer(Modifier.width(4.dp))
+                                Text("英式")
                             }
                         }
+
                         Text(phrase.chinese, color = MaterialTheme.colorScheme.primary)
                         HorizontalDivider()
+
+                        Text("例句", fontWeight = FontWeight.Bold)
                         Text(phrase.example)
+
+                        Row(
+                            Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            TextButton(
+                                onClick = { speak(phrase.example, Locale.US, "example-us-${phrase.id}") },
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Icon(Icons.Default.VolumeUp, null)
+                                Text("例句美式")
+                            }
+                            TextButton(
+                                onClick = { speak(phrase.example, Locale.UK, "example-uk-${phrase.id}") },
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Icon(Icons.Default.VolumeUp, null)
+                                Text("例句英式")
+                            }
+                        }
                     }
                 }
             }
